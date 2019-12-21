@@ -3,7 +3,7 @@
 #include <DGtal/helpers/StdDefs.h>
 #include <DGtal/helpers/Shortcuts.h>
 #include <DGtal/helpers/ShortcutsGeometry.h>
-#include "polyscope/polyscope.h"
+#include "deps/polyscope/polyscope.h"
 
 using namespace DGtal;
 using namespace Z3i;
