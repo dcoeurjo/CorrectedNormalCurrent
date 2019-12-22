@@ -10,6 +10,6 @@ git clone --recursive https://github.com/dcoeurjo/polyscope-dgtal.git
 
 
 
-# Authors
+## Authors
 
 * [David Coeurjolly](http://perso.liris.cnrs.fr/david.coeurjolly) (CNRS)
