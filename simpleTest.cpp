@@ -47,15 +47,27 @@ int main()
   //Computing some differential quantities
   params("r-radius", 5.0);
   auto normals   = SHG3::getCTrivialNormalVectors(surface, surfels, params);
+  auto normalsTrivial   = SHG3::getTrivialNormalVectors(K,surfels);
   auto normalsII = SHG3::getIINormalVectors(binary_image, surfels, params);
   auto Mcurv     = SHG3::getIIMeanCurvatures(binary_image, surfels, params);
   auto Gcurv     = SHG3::getIIGaussianCurvatures(binary_image, surfels, params);
 
+  //Surfel area measure
+  std::vector<double> areaMeasure(surfels.size());
+  auto i=0;
+  for(auto &v: areaMeasure)
+  {
+    v += normalsTrivial[i].dot(normalsII[i]);
+    ++i;
+  }
+  
   //Attaching quantities
+  digsurf->addFaceVectorQuantity("Trivial normal vectors", normalsTrivial);
   digsurf->addFaceVectorQuantity("CTrivial normal vectors", normals);
-  digsurf->addFaceVectorQuantity("II mormal vectors", normalsII);
+  digsurf->addFaceVectorQuantity("II normal vectors", normalsII);
   digsurf->addFaceScalarQuantity("II mean curvature", Mcurv);
   digsurf->addFaceScalarQuantity("II Gaussian curvature", Gcurv);
+  digsurf->addFaceScalarQuantity("Surfel area measure", areaMeasure);
   
   
   polyscope::show();
