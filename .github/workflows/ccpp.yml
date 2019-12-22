@@ -8,7 +8,9 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-     - uses: textbook/git-checkout-submodule-action@v1
+     -  uses: actions/checkout@v1 
+        with:
+          submodules: true
      - name: cmake
        run: mkdir build; cd build ;  cmake ..
      - name: make
