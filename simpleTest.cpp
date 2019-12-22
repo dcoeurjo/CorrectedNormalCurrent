@@ -51,9 +51,9 @@ int main()
   auto Gcurv     = SHG3::getIIGaussianCurvatures(binary_image, surfels, params);
 
   //Attaching quantities
-  digsurf->addFaceVectorQuantity("CTrivial Normal vectors", normals);
-  digsurf->addFaceVectorQuantity("II Normal vectors", normals);
-  digsurf->addFaceScalarQuantity("II Mean curvature", Mcurv);
+  digsurf->addFaceVectorQuantity("CTrivial normal vectors", normals);
+  digsurf->addFaceVectorQuantity("II mormal vectors", normalsII);
+  digsurf->addFaceScalarQuantity("II mean curvature", Mcurv);
   digsurf->addFaceScalarQuantity("II Gaussian curvature", Gcurv);
   
   
