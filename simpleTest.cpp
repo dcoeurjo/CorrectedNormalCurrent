@@ -54,12 +54,9 @@ int main()
 
   //Surfel area measure
   std::vector<double> areaMeasure(surfels.size());
-  auto i=0;
-  for(auto &v: areaMeasure)
-  {
-    v = normalsTrivial[i].dot(normalsII[i]);
-    ++i;
-  }
+  for(auto i=0; i < areaMeasure.size(); ++i)
+    areaMeasure[i] = normalsTrivial[i].dot(normalsII[i]);
+   
   
   //Attaching quantities
   digsurf->addFaceVectorQuantity("Trivial normal vectors", normalsTrivial);
