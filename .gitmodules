@@ -3,4 +3,4 @@
 	url = https://github.com/nmwsharp/polyscope.git
 [submodule "deps/DGtal"]
 	path = deps/DGtal
-	url = git@github.com:DGtal-team/DGtal.git
+	url = https://github.com/DGtal-team/DGtal.git
