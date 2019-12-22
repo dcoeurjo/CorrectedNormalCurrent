@@ -16,7 +16,7 @@ cd build
 cmake ..
 make
 ```
-
+Consider using  `cmake -DCMAKE_BUILD_TYPE=Release` for faster computation.
 
 The example code extracts the digital surface of an implicit shape and computes some differential quantities.
 
@@ -24,3 +24,6 @@ The example code extracts the digital surface of an implicit shape and computes 
 ## Authors
 
 * [David Coeurjolly](http://perso.liris.cnrs.fr/david.coeurjolly) (CNRS)
+
+
+![](http://polyscope.run/media/teaser.svg) ![](https://dgtal.org/img/logoDGtal.svg)
