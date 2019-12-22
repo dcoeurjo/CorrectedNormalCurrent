@@ -1,6 +1,6 @@
 # polyscope-dgtal
 
-This repository is an integration example between [polyscope](http://polyscope.run) and [DGtal](http://dgtal.org).
+This repository is an integration example between [polyscope](https://polyscope.run) and [DGtal](https://dgtal.org).
 
 To use this project, just clone it (with submodule):
 
