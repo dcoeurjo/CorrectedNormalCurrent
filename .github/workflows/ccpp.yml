@@ -12,8 +12,7 @@ jobs:
         with:
           submodules: true
           recursive: true
-     - uses: actions/checkout@v2
-     - run:  git submodule sync --recursive
+     - run:  git submodule update --init --recursive
      - name: cmake
        run: mkdir build; cd build ;  cmake ..
      - name: make
