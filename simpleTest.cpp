@@ -20,7 +20,8 @@ int main()
   polyscope::init();
   
   auto params = SH3::defaultParameters() | SHG3::defaultParameters() |  SHG3::parametersGeometryEstimation();
-  auto h=0.5;
+  
+  auto h=0.5; //gridstep
   params( "polynomial", "goursat" )( "gridstep", h );
   auto implicit_shape  = SH3::makeImplicitShape3D  ( params );
   auto digitized_shape = SH3::makeDigitizedImplicitShape3D( implicit_shape, params );
