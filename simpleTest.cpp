@@ -57,7 +57,7 @@ int main()
   auto i=0;
   for(auto &v: areaMeasure)
   {
-    v += normalsTrivial[i].dot(normalsII[i]);
+    v = normalsTrivial[i].dot(normalsII[i]);
     ++i;
   }
   
