@@ -33,11 +33,12 @@ int main()
   auto surfels         = SH3::getSurfelRange( surface, params );
   auto primalSurface   = SH3::makePrimalPolygonalSurface(c2i, surface);
   
-  polyscope::registerPointCloud("Pointels", primalSurface->positions());
-  
+  //Need to convert the faces
   std::vector<std::vector<unsigned long>> faces;
   for(auto &face: primalSurface->allFaces())
     faces.push_back(primalSurface->verticesAroundFace( face ));
+  
+  polyscope::registerPointCloud("Pointels", primalSurface->positions());
   
   auto digsurf = polyscope::registerSurfaceMesh("Primal surface", primalSurface->positions(), faces);
   digsurf->edgeWidth=1.0;
