@@ -13,7 +13,7 @@ jobs:
           submodules: true
           recursive: true
      - run:  git submodule update --init --recursive
-     - run: sudo apt-get install xorg-dev libglu1-mesa-dev
+     - run: sudo apt-get install xorg-dev libglu1-mesa-dev libboost-dev
      - name: cmake
        run: ls -l ; mkdir build; cd build ;  cmake ..
      - name: make
