@@ -11,7 +11,7 @@ git clone --recursive https://github.com/dcoeurjo/polyscope-dgtal.git
 Then you can compile the example file using:
 
 ```
-mkdir buikd
+mkdir build
 cd build
 cmake ..
 make
