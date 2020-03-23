@@ -41,8 +41,8 @@ int main()
   polyscope::registerPointCloud("Pointels", primalSurface->positions());
   
   auto digsurf = polyscope::registerSurfaceMesh("Primal surface", primalSurface->positions(), faces);
-  digsurf->edgeWidth=1.0;
-  digsurf->edgeColor={1.,1.,1.};
+  digsurf->setEdgeWidth(1.0);
+  digsurf->setEdgeColor({1.,1.,1.});
   
   //Computing some differential quantities
   params("r-radius", 5.0);
