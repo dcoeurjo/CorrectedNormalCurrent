@@ -34,7 +34,7 @@ int main()
   auto primalSurface   = SH3::makePrimalPolygonalSurface(c2i, surface);
   
   //Need to convert the faces
-  std::vector<std::vector<unsigned long>> faces;
+  std::vector<std::vector<std::size_t>> faces;
   for(auto &face: primalSurface->allFaces())
     faces.push_back(primalSurface->verticesAroundFace( face ));
   

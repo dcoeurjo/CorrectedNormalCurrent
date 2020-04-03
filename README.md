@@ -18,6 +18,9 @@ make
 ```
 Consider using  `cmake -DCMAKE_BUILD_TYPE=Release` for faster computation.
 
+*Note*: to compile DGtal, you would need [boost](boost.org) (only headers) and  [zlib](https://www.zlib.net).
+
+
 The example code extracts the digital surface of an implicit shape and computes some differential quantities.
 
 
