@@ -55,7 +55,6 @@ curvDirFromTensor(const CorrectedNormalCurrentFormula<RealVector,RealVector>::Re
       M( j, k ) += coef_N * N[ j ] * N[ k ];
   auto V = M;
   RealVector L;
-  std::cout<<N.norm()<<std::endl;
   EigenDecomposition< 3, double>::getEigenDecomposition( M, V, L );
   return std::pair<RealVector,RealVector>(V.column( 1 ),  V.column( 0 ));
 }
@@ -81,7 +80,6 @@ void doWork()
   }
   psMesh->setFaceTangentBasisX(vBasisX);
 
-  
   FaceData<double> cncMean(*mesh);
   FaceData<double> cncGauss(*mesh);
   FaceData<double> rusMean(*mesh);
