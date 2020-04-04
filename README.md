@@ -5,7 +5,7 @@ This repository is an integration example between [polyscope](https://polyscope.
 To use this project, just clone it (with submodule):
 
 ```
-git clone --recursive https://github.com/dcoeurjo/polyscope-dgtal.git
+git clone --recursive https://github.com/dcoeurjo/PolyscopeCNC.git
 ```
 
 Then you can compile the example file using:
