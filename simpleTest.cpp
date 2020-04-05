@@ -120,8 +120,8 @@ void convolution(DataFace &data)
   for(auto face: mesh->faces())
   {
     auto Br = facesInBall(face, Radius);
-    auto val=data[Br[0]];
-    double totalarea = 0.0;
+    auto val=geometry->faceArea(Br[0])*data[Br[0]];
+    double totalarea = geometry->faceArea(Br[0]);
     for(auto i=1;i < Br.size(); ++i)
     {
       totalarea += geometry->faceArea(Br[i]);
