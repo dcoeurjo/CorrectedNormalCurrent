@@ -200,8 +200,6 @@ void doWork()
     m0[face] = CorrectedNormalCurrentFormula<RealPoint, RealPoint>::mu0InterpolatedU(pA, pB, pC, nA, nB, nC);
     m1[face] = CorrectedNormalCurrentFormula<RealPoint, RealPoint>::mu1InterpolatedU(pA, pB, pC, nA, nB, nC);
     m2[face] = CorrectedNormalCurrentFormula<RealPoint, RealPoint>::mu2InterpolatedU(pA, pB, pC, nA, nB, nC);
-    cncMean[face] = clamp(m1[face]/m0[face]);
-    cncGauss[face] = clamp(m2[face]/m0[face]);
     
     auto mxy =CorrectedNormalCurrentFormula<RealPoint, RealPoint>::muXYInterpolatedU(pA, pB, pC, nA, nB, nC);
     RealVector dd1,dd2;
@@ -258,6 +256,11 @@ void doWork()
   t3.join();
 //  t4.join();
   
+  for(auto face: mesh->faces())
+  {
+    cncMean[face] = clamp(m1[face]/m0[face]);
+    cncGauss[face] = clamp(m2[face]/m0[face]);
+  }
   
   psMesh->addVertexScalarQuantity("NC Gauss",ncGauss,
                                 polyscope::DataType::SYMMETRIC);
