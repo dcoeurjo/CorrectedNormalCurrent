@@ -250,14 +250,13 @@ void doWork()
   }
   
 
-  std::thread t1([&]{convolution(cncMean);});
-  std::thread t2([&]{convolution(cncGauss);});
-  std::thread t3([&]{convolution(rusMean);});
-  std::thread t4([&]{convolution(rusGauss);});
+  std::thread t1([&]{convolution(m0);});
+  std::thread t2([&]{convolution(m1);});
+  std::thread t3([&]{convolution(m2);});
   t1.join();
   t2.join();
   t3.join();
-  t4.join();
+//  t4.join();
   
   
   psMesh->addVertexScalarQuantity("NC Gauss",ncGauss,
