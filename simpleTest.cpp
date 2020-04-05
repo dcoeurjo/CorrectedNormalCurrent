@@ -120,12 +120,12 @@ void convolution(DataFace &data)
   for(auto face: mesh->faces())
   {
     auto Br = facesInBall(face, Radius);
-    auto val=0.0;
+    auto val=data[Br[0]];
     double totalarea = 0.0;
-    for(auto adjFace: Br)
+    for(auto i=1;i < Br.size(); ++i)
     {
-      totalarea += geometry->faceArea(adjFace);
-      val = val + geometry->faceArea(adjFace) * data[adjFace];
+      totalarea += geometry->faceArea(Br[i]);
+      val = val + geometry->faceArea(Br[i]) * data[Br[i]];
     }
     val /= totalarea;
     data[face] = val;
@@ -156,6 +156,9 @@ void doWork()
   FaceData<double> m0(*mesh);
   FaceData<double> m1(*mesh);
   FaceData<double> m2(*mesh);
+  FaceData<CorrectedNormalCurrentFormula<RealPoint, RealPoint>::RealTensor > mXY(*mesh);
+
+
   VertexData<RealPoint> normV(*mesh);
 
   FaceData<RealVector> d1(*mesh);
@@ -201,28 +204,8 @@ void doWork()
     m1[face] = CorrectedNormalCurrentFormula<RealPoint, RealPoint>::mu1InterpolatedU(pA, pB, pC, nA, nB, nC);
     m2[face] = CorrectedNormalCurrentFormula<RealPoint, RealPoint>::mu2InterpolatedU(pA, pB, pC, nA, nB, nC);
     
-    auto mxy =CorrectedNormalCurrentFormula<RealPoint, RealPoint>::muXYInterpolatedU(pA, pB, pC, nA, nB, nC);
-    RealVector dd1,dd2;
-    auto nf= geometry->faceNormal(face);
-    RealVector nFace(nf.x,nf.y,nf.z);
-    std::tie(dd1,dd2) = curvDirFromTensor(mxy, geometry->faceArea(face), nFace);
-    d1[face] = dd1;
-    d2[face] = dd2;
-    auto vB = vBasisX[face];
-    RealVector tan(vB.x,vB.y,vB.z);
-    RealVector bitan(geometry->faceTangentBasis[face][1].x,
-                     geometry->faceTangentBasis[face][1].y,
-                     geometry->faceTangentBasis[face][1].z);
-
-    double angle =std::acos(tan.dot(dd1));
-    if (bitan.dot(dd1) < 0.0)
-      angle  = 2*M_PI - angle;
-    intd1[face] = std::polar(1.0, angle);
+    mXY[face] =CorrectedNormalCurrentFormula<RealPoint, RealPoint>::muXYInterpolatedU(pA, pB, pC, nA, nB, nC);
     
-    angle =std::acos(tan.dot(dd2));
-      if (bitan.dot(dd2) < 0.0)
-        angle  = 2*M_PI - angle;
-    intd2[face] = std::polar(1.0, angle);
     
     //Rusinkiewicz Curvature
     rusMean[face] = clamp(RusinkiewiczCurvatureFormula::meanCurvature(A, B, C, nnA, nnB, nnC));
@@ -251,15 +234,37 @@ void doWork()
   std::thread t1([&]{convolution(m0);});
   std::thread t2([&]{convolution(m1);});
   std::thread t3([&]{convolution(m2);});
+  std::thread t4([&]{convolution(mXY);});
   t1.join();
   t2.join();
   t3.join();
-//  t4.join();
+  t4.join();
   
   for(auto face: mesh->faces())
   {
     cncMean[face] = clamp(m1[face]/m0[face]);
     cncGauss[face] = clamp(m2[face]/m0[face]);
+    RealVector dd1,dd2;
+    auto nf= geometry->faceNormal(face);
+    RealVector nFace(nf.x,nf.y,nf.z);
+    std::tie(dd1,dd2) = curvDirFromTensor(mXY[face], geometry->faceArea(face), nFace);
+    d1[face] = dd1;
+    d2[face] = dd2;
+    auto vB = vBasisX[face];
+    RealVector tan(vB.x,vB.y,vB.z);
+    RealVector bitan(geometry->faceTangentBasis[face][1].x,
+                     geometry->faceTangentBasis[face][1].y,
+                     geometry->faceTangentBasis[face][1].z);
+
+    double angle =std::acos(tan.dot(dd1));
+    if (bitan.dot(dd1) < 0.0)
+      angle  = 2*M_PI - angle;
+    intd1[face] = std::polar(1.0, angle);
+    
+    angle =std::acos(tan.dot(dd2));
+      if (bitan.dot(dd2) < 0.0)
+        angle  = 2*M_PI - angle;
+    intd2[face] = std::polar(1.0, angle);
   }
   
   psMesh->addVertexScalarQuantity("NC Gauss",ncGauss,
