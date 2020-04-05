@@ -1,4 +1,5 @@
 #include <iostream>
+#include <thread>
 #include <DGtal/base/Common.h>
 #include <DGtal/helpers/StdDefs.h>
 #include <DGtal/helpers/Shortcuts.h>
@@ -36,7 +37,9 @@ std::unique_ptr<VertexPositionGeometry> geometry;
 // Polyscope visualization handle, to quickly add data to the surface
 polyscope::SurfaceMesh *psMesh;
 
+// Main variables
 float clampM=10.0;
+float Radius=0.01;
 
 // Computing principal curvatures k1 and k2
 static
@@ -60,15 +63,117 @@ curvDirFromTensor(const CorrectedNormalCurrentFormula<RealVector,RealVector>::Re
 }
 
 
+bool isFaceInBall(const Face face, const Vector3 &center, const double rad )
+{
+  for(auto vertex:  face.adjacentVertices())
+    if ((geometry->vertexPositions[vertex] - center).norm() > rad)
+      return false;
+  return true;
+}
+
+
+std::vector<Face> facesInBall(const Face source,
+                             const double rad)
+{
+  Vector3 center={0,0,0};
+  auto cpt=0;
+  for(auto vert: source.adjacentVertices())
+  {
+    cpt++;
+    center += geometry->vertexPositions[vert];
+  }
+  center = center /(double)cpt;
+  
+  std::unordered_set<Face> marked;
+  std::vector<Face> faces;
+  std::queue<Face> queue;
+  
+  faces.push_back(source);
+  queue.push(source);
+  while (!(queue.empty()))
+  {
+    auto f = queue.front();
+    marked.insert(f);
+    faces.push_back(f);
+    queue.pop();
+    for(auto neig: f.adjacentFaces())
+      if ((marked.find(neig)==marked.end()) && (isFaceInBall(neig,center,rad)))
+         queue.push(neig);
+  }
+  return faces;
+}
+
+
+void checkRadius()
+{
+  FaceData<double> flag(*mesh);
+  auto adjFaces = facesInBall(mesh->face(0)   , Radius);
+  for(auto face: adjFaces)
+    flag[face] = 10.0;
+  psMesh->addFaceScalarQuantity("Ball", flag);
+}
+
+
+template<typename DataFace>
+void convolutionV(DataFace &data)
+{
+  for(auto face: mesh->faces())
+  {
+    auto Br = facesInBall(face, Radius);
+    RealVector val(0.0,0,0);
+    double totalarea = 0.0;
+    for(auto adjFace: Br)
+    {
+      totalarea += geometry->faceArea(adjFace);
+      val = val + geometry->faceArea(adjFace) * data[adjFace];
+    }
+    val /= totalarea;
+    data[face] = val;
+  }
+}
+
+template<typename DataFace>
+void convolutionC(DataFace &data)
+{
+  for(auto face: mesh->faces())
+  {
+    auto Br = facesInBall(face, Radius);
+    std::complex<double> val(0.0,0.0);
+    double totalarea = 0.0;
+    for(auto adjFace: Br)
+    {
+      totalarea += geometry->faceArea(adjFace);
+      val = val + geometry->faceArea(adjFace) * data[adjFace];
+    }
+    val /= totalarea;
+    data[face] = val;
+  }
+}
+
+template<typename DataFace>
+void convolution(DataFace &data)
+{
+  for(auto face: mesh->faces())
+  {
+    auto Br = facesInBall(face, Radius);
+    auto val=0.0;
+    double totalarea = 0.0;
+    for(auto adjFace: Br)
+    {
+      totalarea += geometry->faceArea(adjFace);
+      val = val + geometry->faceArea(adjFace) * data[adjFace];
+    }
+    val /= totalarea;
+    data[face] = val;
+  }
+}
+
+
 
 // Example computation function -- this one computes and registers a scalar
 // quantity
 void doWork()
 {
-  geometry->requireVertexGaussianCurvatures();
-  geometry->requireFaceNormals();
-  geometry->requireVertexNormals();
-  geometry->requireVertexPositions();
   psMesh->addVertexScalarQuantity("curvature polyscope",
                                   geometry->vertexGaussianCurvatures,
                                   polyscope::DataType::SYMMETRIC);
@@ -104,6 +209,7 @@ void doWork()
   //Default polyscope GC does NC
   for(auto vert: mesh->vertices())
     ncGauss[vert] = clamp(geometry->vertexGaussianCurvatures[vert]);
+  
   
   for(auto face: mesh->faces())
   {
@@ -179,6 +285,25 @@ void doWork()
     ncMean[ edge ] = clamp(NormalCycleFormula<RealPoint, RealPoint>::meanCurvature(pA, pB, nnA, nnB));
   }
   
+
+  std::thread t1([&]{convolution(cncMean);});
+  std::thread t1b([&]{convolution(cncGauss);});
+  std::thread t2([&]{convolution(rusMean);});
+  std::thread t3([&]{convolution(rusGauss);});
+  std::thread t4([&]{convolutionV(d1);});
+  std::thread t5([&]{convolutionV(d2);});
+  std::thread t6([&]{convolutionC(intd1);});
+  std::thread t7([&]{convolutionC(intd1);});
+  t1.join();
+  t1b.join();
+  t2.join();
+  t3.join();
+  t4.join();
+  t5.join();
+  t6.join();
+  t7.join();
+  
+  
   psMesh->addVertexScalarQuantity("NC Gauss",ncGauss,
                                 polyscope::DataType::SYMMETRIC);
   psMesh->addEdgeScalarQuantity("NC mean",ncMean,
@@ -209,13 +334,15 @@ void doWork()
 // A user-defined callback, for creating control panels (etc)
 // Use ImGUI commands to build whatever you want here, see
 // https://github.com/ocornut/imgui/blob/master/imgui.h
-void myCallback() {
-
-  ImGui::SliderFloat("Clamping value", &clampM, 0.0, 100);
+void myCallback()
+{
+  ImGui::SliderFloat("Integration radius", &Radius, 0.0, 1.0);
+  if (ImGui::Button("check radius"))
+    checkRadius();
+  
+  ImGui::SliderFloat("Clamping value for the curvatvure measures", &clampM, 0.0, 100);
   if (ImGui::Button("do work"))
-  {
     doWork();
-  }
 }
 
 
@@ -246,6 +373,9 @@ int main(int argc, char **argv)
   
   polyscope::init();
   
+  
+  
+  
   // Set the callback function
   polyscope::state::userCallback = myCallback;
 
@@ -258,7 +388,10 @@ int main(int argc, char **argv)
       geometry->inputVertexPositions, mesh->getFaceVertexList(),
       polyscopePermutations(*mesh));
 
-  
+  geometry->requireVertexGaussianCurvatures();
+  geometry->requireFaceNormals();
+  geometry->requireVertexNormals();
+  geometry->requireVertexPositions();
   
   
   polyscope::show();
