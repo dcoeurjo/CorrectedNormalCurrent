@@ -106,49 +106,13 @@ std::vector<Face> facesInBall(const Face source,
 
 void checkRadius()
 {
-  FaceData<double> flag(*mesh);
+  FaceData<double> flag(*mesh,0.0);
   auto adjFaces = facesInBall(mesh->face(0)   , Radius);
   for(auto face: adjFaces)
     flag[face] = 10.0;
   psMesh->addFaceScalarQuantity("Ball", flag);
 }
 
-
-template<typename DataFace>
-void convolutionV(DataFace &data)
-{
-  for(auto face: mesh->faces())
-  {
-    auto Br = facesInBall(face, Radius);
-    RealVector val(0.0,0,0);
-    double totalarea = 0.0;
-    for(auto adjFace: Br)
-    {
-      totalarea += geometry->faceArea(adjFace);
-      val = val + geometry->faceArea(adjFace) * data[adjFace];
-    }
-    val /= totalarea;
-    data[face] = val;
-  }
-}
-
-template<typename DataFace>
-void convolutionC(DataFace &data)
-{
-  for(auto face: mesh->faces())
-  {
-    auto Br = facesInBall(face, Radius);
-    std::complex<double> val(0.0,0.0);
-    double totalarea = 0.0;
-    for(auto adjFace: Br)
-    {
-      totalarea += geometry->faceArea(adjFace);
-      val = val + geometry->faceArea(adjFace) * data[adjFace];
-    }
-    val /= totalarea;
-    data[face] = val;
-  }
-}
 
 template<typename DataFace>
 void convolution(DataFace &data)
@@ -287,21 +251,13 @@ void doWork()
   
 
   std::thread t1([&]{convolution(cncMean);});
-  std::thread t1b([&]{convolution(cncGauss);});
-  std::thread t2([&]{convolution(rusMean);});
-  std::thread t3([&]{convolution(rusGauss);});
-  std::thread t4([&]{convolutionV(d1);});
-  std::thread t5([&]{convolutionV(d2);});
-  std::thread t6([&]{convolutionC(intd1);});
-  std::thread t7([&]{convolutionC(intd1);});
+  std::thread t2([&]{convolution(cncGauss);});
+  std::thread t3([&]{convolution(rusMean);});
+  std::thread t4([&]{convolution(rusGauss);});
   t1.join();
-  t1b.join();
   t2.join();
   t3.join();
   t4.join();
-  t5.join();
-  t6.join();
-  t7.join();
   
   
   psMesh->addVertexScalarQuantity("NC Gauss",ncGauss,
