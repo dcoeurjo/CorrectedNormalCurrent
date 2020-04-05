@@ -46,6 +46,9 @@
 #include "DGtal/math/linalg/SimpleMatrix.h"
 #include "DGtal/math/linalg/EigenDecomposition.h"
 
+#include "geometrycentral/utilities/vector3.h"
+#include "geometrycentral/numerical/linear_algebra_utilities.h"
+#include "geometrycentral/numerical/linear_solvers.h"
 //////////////////////////////////////////////////////////////////////////////
 
 namespace DGtal
@@ -61,12 +64,11 @@ namespace DGtal
      @tparam TRealPoint any model of 3D RealPoint.
      @tparam TRealVector any model of 3D RealVector.
   */
-  template < typename TRealPoint, typename TRealVector >
   struct RusinkiewiczCurvatureFormula
   {
-    typedef TRealPoint                     RealPoint;
-    typedef TRealVector                    RealVector;
-    typedef typename RealVector::Component Scalar;
+    typedef geometrycentral::Vector3            RealPoint;
+    typedef geometrycentral::Vector3            RealVector;
+    typedef double                         Scalar;
     typedef std::vector< RealPoint >       RealPoints;
     typedef std::vector< RealVector >      RealVectors;
     typedef SimpleMatrix< Scalar, 3, 3 >   RealTensor;
@@ -74,7 +76,7 @@ namespace DGtal
     typedef typename RealTensor2D::ColumnVector ColumnVector2D;
     typedef typename RealTensor2D::RowVector    RowVector2D;
     typedef std::size_t                    Index;
-    static const Dimension dimension = RealPoint::dimension;
+    static const Dimension dimension = 3;
     typedef SimpleMatrix< Scalar, 6, 3 >   LSMatrix;
     typedef typename LSMatrix::ColumnVector LSColumnVector;
 
@@ -92,8 +94,8 @@ namespace DGtal
     std::pair< RealVector, RealVector > basis
     ( const RealPoint& a, const RealPoint& b, const RealPoint& c )
     {
-      RealVector u = ( b - a ).getNormalized();
-      RealVector v = normal( a, b, c ).crossProduct( u );
+      RealVector u = ( b - a ).normalize();
+      RealVector v = cross(normal( a, b, c ),  u );
       return std::make_pair( u, v );
     }    
 
@@ -265,14 +267,14 @@ namespace DGtal
       const auto v  = bf.second;
       for ( Dimension i = 0; i < 3; ++i )
 	{
-	  Y[ 2*i   ] = dn[ i ].dot( u );
-	  Y[ 2*i+1 ] = dn[ i ].dot( v );
-	  M.setComponent( 2*i, 0, e[ i ].dot( u ) );
-	  M.setComponent( 2*i, 1, e[ i ].dot( v ) );
+	  Y[ 2*i   ] = dot(dn[ i ], u );
+	  Y[ 2*i+1 ] = dot(dn[ i ], v );
+	  M.setComponent( 2*i, 0, dot(e[ i ], u ) );
+	  M.setComponent( 2*i, 1, dot(e[ i ], v ) );
 	  M.setComponent( 2*i, 2, 0.0 );
 	  M.setComponent( 2*i+1, 0, 0.0 );
-	  M.setComponent( 2*i+1, 1, e[ i ].dot( u ) );
-	  M.setComponent( 2*i+1, 2, e[ i ].dot( v ) );
+	  M.setComponent( 2*i+1, 1, dot(e[ i ], u ) );
+	  M.setComponent( 2*i+1, 2, dot(e[ i ], v ) );
 	}
     }
     
@@ -302,7 +304,7 @@ namespace DGtal
     static
     RealVector normal( const RealPoint& a, const RealPoint& b, const RealPoint& c )
     {
-      return ( ( b - a ).crossProduct( c - a ) ).getNormalized();
+      return ( cross(( b - a ),( c - a ) ).normalize() );
     }    
 
     /// Computes triangle area
@@ -313,7 +315,7 @@ namespace DGtal
     static
     Scalar area( const RealPoint& a, const RealPoint& b, const RealPoint& c )
     {
-      return 0.5 * ( ( b - a ).crossProduct( c - a ) ).norm();
+      return 0.5 * ( cross(( b - a ),( c - a ) ).norm());
     }    
 
     /// Given a vector of unit vectors, returns their average unit vector.
@@ -335,10 +337,10 @@ namespace DGtal
 				    const RealVector& up, const RealVector& vp )
     {
       RealTensor2D U;
-      const auto up_uf = up.dot( uf );
-      const auto up_vf = up.dot( vf );
-      const auto vp_uf = vp.dot( uf );
-      const auto vp_vf = vp.dot( vf );
+      const auto up_uf = dot(up , uf );
+      const auto up_vf = dot(up , vf );
+      const auto vp_uf = dot(vp , uf );
+      const auto vp_vf = dot(vp , vf );
       U.setComponent
 	( 0, 0, RowVector2D{ up_uf, up_vf }.dot(T * ColumnVector2D{ up_uf, up_vf }) );
       U.setComponent

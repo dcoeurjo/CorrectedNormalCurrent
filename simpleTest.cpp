@@ -109,22 +109,22 @@ void doWork()
   {
     auto vb = face.adjacentVertices().begin();
     auto A =  geometry->vertexPositions[*vb];
-    auto n =  geometry->vertexNormals[*vb];
+    auto nnA =  geometry->vertexNormals[*vb];
     RealPoint pA(A.x,A.y, A.z);
-    RealPoint nA(n.x,n.y, n.z);
+    RealPoint nA(nnA.x,nnA.y, nnA.z);
     normV[*vb] = nA;
     
     ++vb;
-    A =  geometry->vertexPositions[*vb];
-    n =  geometry->vertexNormals[*vb];
-    RealPoint pB(A.x,A.y, A.z);
-    RealPoint nB(n.x,n.y, n.z);
+    auto B =  geometry->vertexPositions[*vb];
+    auto nnB =  geometry->vertexNormals[*vb];
+    RealPoint pB(B.x,B.y, B.z);
+    RealPoint nB(nnB.x,nnB.y, nnB.z);
     normV[*vb] = nB;
     ++vb;
-    A =  geometry->vertexPositions[*vb];
-    n =  geometry->vertexNormals[*vb];
-    RealPoint pC(A.x,A.y, A.z);
-    RealPoint nC(n.x,n.y, n.z);
+    auto C=  geometry->vertexPositions[*vb];
+    auto nnC =  geometry->vertexNormals[*vb];
+    RealPoint pC(C.x,C.y, C.z);
+    RealPoint nC(nnC.x,nnC.y, nnC.z);
     normV[*vb] = nC;
     
     m0[face] = CorrectedNormalCurrentFormula<RealPoint, RealPoint>::mu0InterpolatedU(pA, pB, pC, nA, nB, nC);
@@ -156,8 +156,9 @@ void doWork()
         angle  = 2*M_PI - angle;
     intd2[face] = std::polar(1.0, angle);
     
-    rusMean[face] = clamp(RusinkiewiczCurvatureFormula<RealPoint, RealPoint>::meanCurvature(pA, pB, pC, nA, nB, nC));
-    rusGauss[face] = clamp(RusinkiewiczCurvatureFormula<RealPoint, RealPoint>::gaussianCurvature(pA, pB, pC, nA, nB, nC));
+    //Rusinkiewicz Curvature
+    rusMean[face] = clamp(RusinkiewiczCurvatureFormula::meanCurvature(A, B, C, nnA, nnB, nnC));
+    rusGauss[face] = clamp(RusinkiewiczCurvatureFormula::gaussianCurvature(A, B, C, nnA, nnB, nnC));
   }
   
   
