@@ -1,6 +1,8 @@
-# polyscope-dgtal
+# Interpolated corrected curvature measures for polygonal surfaces
 
-This repository is an integration example between [polyscope](https://polyscope.run) and [DGtal](https://dgtal.org).
+This repository is demo of the "Interpolated corrected curvature
+measures for polygonal surfaces" article.
+
 
 To use this project, just clone it (with submodule):
 
@@ -21,12 +23,16 @@ Consider using  `cmake -DCMAKE_BUILD_TYPE=Release` for faster computation.
 *Note*: to compile DGtal, you would need [boost](boost.org) (only headers) and  [zlib](https://www.zlib.net).
 
 
-The example code extracts the digital surface of an implicit shape and computes some differential quantities.
+Once the code has been built, just run
 
+```
+simpleTest ../spot.obj
+```
 
 ## Authors
 
-* [David Coeurjolly](http://perso.liris.cnrs.fr/david.coeurjolly) (CNRS)
+* [Jacques-Olivier Lachaud](http://www.lama.univ-savoie.fr/pagesmembres/lachaud/People/LACHAUD-JO/person.html)
+* [Boris Thibert](https://ljk.imag.fr/membres/Boris.Thibert/)
+* [Pascal Romon](https://perso.math.u-pem.fr/romon.pascal/)
+* [David Coeurjolly](http://perso.liris.cnrs.fr/david.coeurjolly)
 
-
-![](http://polyscope.run/media/teaser.svg) ![](https://dgtal.org/img/logoDGtal.svg)

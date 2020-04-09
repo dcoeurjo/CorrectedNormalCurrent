@@ -63,6 +63,11 @@ curvDirFromTensor(const CorrectedNormalCurrentFormula<RealVector,RealVector>::Re
 }
 
 
+/// IsFaceInBall predicate
+/// @param face a face
+/// @param center the ball center
+/// @param rad the ball radius
+/// @return true if the triangle is entirely inside the ball.
 bool isFaceInBall(const Face face, const Vector3 &center, const double rad )
 {
   for(auto vertex:  face.adjacentVertices())
@@ -71,7 +76,15 @@ bool isFaceInBall(const Face face, const Vector3 &center, const double rad )
   return true;
 }
 
-
+/// Breathfirst propagation over the triangular mesh using the IsFaceInBall predicate.
+///
+/// Warning: in this demo code, we do not consider triangles intersected by
+/// the sphere (only triangles strictly contained in the ball).
+/// For correct estimation, we should consider the area of (B_r\cap T).
+///
+/// @param source source face
+/// @param rad radius parameter.
+/// @return a vector of faces contained (strictly) in the ball.
 std::vector<Face> facesInBall(const Face source,
                              const double rad)
 {
@@ -104,6 +117,8 @@ std::vector<Face> facesInBall(const Face source,
 }
 
 
+/// Add a quantity to see the effect of the radius parameter
+/// on the given geometry.
 void checkRadius()
 {
   FaceData<double> flag(*mesh,0.0);
@@ -114,6 +129,8 @@ void checkRadius()
 }
 
 
+/// Integrate some measures in a neighborhood
+/// @param data the measure to integrate
 template<typename DataFace>
 void convolution(DataFace &data)
 {
@@ -133,9 +150,6 @@ void convolution(DataFace &data)
 }
 
 
-
-// Example computation function -- this one computes and registers a scalar
-// quantity
 void doWork()
 {
   psMesh->addVertexScalarQuantity("curvature polyscope",
@@ -158,25 +172,20 @@ void doWork()
   FaceData<double> m2(*mesh);
   FaceData<CorrectedNormalCurrentFormula<RealPoint, RealPoint>::RealTensor > mXY(*mesh);
 
-
-  VertexData<RealPoint> normV(*mesh);
+  VertexData<RealPoint> normal(*mesh);
 
   FaceData<RealVector> d1(*mesh);
   FaceData<RealVector> d2(*mesh);
-
   FaceData<std::complex<double>> intd1(*mesh);
   FaceData<std::complex<double>> intd2(*mesh);
-
   VertexData<double> ncGauss(*mesh);
   EdgeData<double> ncMean(*mesh);
   
   auto clamp= [](double v){ return (v< -clampM)? -clampM: (v>clampM)? clampM: v; };
   
-  
   //Default polyscope GC does NC
   for(auto vert: mesh->vertices())
     ncGauss[vert] = clamp(geometry->vertexGaussianCurvatures[vert]);
-  
   
   for(auto face: mesh->faces())
   {
@@ -185,34 +194,30 @@ void doWork()
     auto nnA =  geometry->vertexNormals[*vb];
     RealPoint pA(A.x,A.y, A.z);
     RealPoint nA(nnA.x,nnA.y, nnA.z);
-    normV[*vb] = nA;
-    
+    normal[*vb] = nA;
     ++vb;
     auto B =  geometry->vertexPositions[*vb];
     auto nnB =  geometry->vertexNormals[*vb];
     RealPoint pB(B.x,B.y, B.z);
     RealPoint nB(nnB.x,nnB.y, nnB.z);
-    normV[*vb] = nB;
+    normal[*vb] = nB;
     ++vb;
     auto C=  geometry->vertexPositions[*vb];
     auto nnC =  geometry->vertexNormals[*vb];
     RealPoint pC(C.x,C.y, C.z);
     RealPoint nC(nnC.x,nnC.y, nnC.z);
-    normV[*vb] = nC;
+    normal[*vb] = nC;
     
+    //CNC measures
     m0[face] = CorrectedNormalCurrentFormula<RealPoint, RealPoint>::mu0InterpolatedU(pA, pB, pC, nA, nB, nC);
     m1[face] = CorrectedNormalCurrentFormula<RealPoint, RealPoint>::mu1InterpolatedU(pA, pB, pC, nA, nB, nC);
     m2[face] = CorrectedNormalCurrentFormula<RealPoint, RealPoint>::mu2InterpolatedU(pA, pB, pC, nA, nB, nC);
-    
     mXY[face] =CorrectedNormalCurrentFormula<RealPoint, RealPoint>::muXYInterpolatedU(pA, pB, pC, nA, nB, nC);
-    
-    
+
     //Rusinkiewicz Curvature
     rusMean[face] = clamp(RusinkiewiczCurvatureFormula::meanCurvature(A, B, C, nnA, nnB, nnC));
     rusGauss[face] = clamp(RusinkiewiczCurvatureFormula::gaussianCurvature(A, B, C, nnA, nnB, nnC));
   }
-  
-  
   
   //NormalCycle per edge
   for(auto edge: mesh->edges())
@@ -230,7 +235,7 @@ void doWork()
     ncMean[ edge ] = clamp(NormalCycleFormula<RealPoint, RealPoint>::meanCurvature(pA, pB, nnA, nnB));
   }
   
-
+  //Multithreading the integration
   std::thread t1([&]{convolution(m0);});
   std::thread t2([&]{convolution(m1);});
   std::thread t3([&]{convolution(m2);});
@@ -240,6 +245,7 @@ void doWork()
   t3.join();
   t4.join();
   
+  //We update the quantities
   for(auto face: mesh->faces())
   {
     cncMean[face] = clamp(m1[face]/m0[face]);
@@ -284,14 +290,10 @@ void doWork()
   psMesh->addFaceScalarQuantity("mu1",m1);
   psMesh->addFaceScalarQuantity("mu2",m2);
  
-  psMesh->addFaceVectorQuantity("dir1 CNC",d1);
-  psMesh->addFaceVectorQuantity("dir2 CNC",d2);
+  psMesh->addFaceIntrinsicVectorQuantity("dir1 CNC",intd1);
+  psMesh->addFaceIntrinsicVectorQuantity("dir2 CNC",intd2);
 
-  psMesh->addFaceIntrinsicVectorQuantity("dir1 bis CNC",intd1);
-  psMesh->addFaceIntrinsicVectorQuantity("dir2 bis CNC",intd2);
-
-  
-  psMesh->addVertexVectorQuantity("Normal at vertices", normV);
+  psMesh->addVertexVectorQuantity("Normal vectors", normal);
 }
 
 // A user-defined callback, for creating control panels (etc)
@@ -332,13 +334,9 @@ int main(int argc, char **argv)
      std::cerr << "Please specify a mesh file as argument" << std::endl;
      return EXIT_FAILURE;
    }
-
   
   polyscope::init();
-  
-  
-  
-  
+
   // Set the callback function
   polyscope::state::userCallback = myCallback;
 
