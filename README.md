@@ -1,6 +1,6 @@
 # Interpolated corrected curvature measures for polygonal surfaces
 
-This repository is demo of the "Interpolated corrected curvature
+This repository is a demo of the "Interpolated corrected curvature
 measures for polygonal surfaces" article.
 
 
