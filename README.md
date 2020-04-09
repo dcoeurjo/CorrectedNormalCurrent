@@ -29,6 +29,8 @@ Once the code has been built, just run
 simpleTest ../spot.obj
 ```
 
+![](screenshot.png)
+
 ## Authors
 
 * [Jacques-Olivier Lachaud](http://www.lama.univ-savoie.fr/pagesmembres/lachaud/People/LACHAUD-JO/person.html)
