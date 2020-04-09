@@ -19,11 +19,11 @@ cmake ..
 make
 ```
 Consider using  `cmake -DCMAKE_BUILD_TYPE=Release` for faster computation.
-
 *Note*: to compile DGtal, you would need [boost](boost.org) (only headers) and  [zlib](https://www.zlib.net).
 
 
-Once the code has been built, just run
+Once the code has been built, just run *simpleTest* on a triangulated
+OBJ file:
 
 ```
 simpleTest ../spot.obj
