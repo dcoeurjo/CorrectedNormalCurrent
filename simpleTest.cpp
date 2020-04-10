@@ -301,7 +301,7 @@ void doWork()
 // https://github.com/ocornut/imgui/blob/master/imgui.h
 void myCallback()
 {
-  ImGui::SliderFloat("Integration radius", &Radius, 0.0, 1.0);
+  ImGui::SliderFloat("Measuring ball radius", &Radius, 0.0, 1.0);
   if (ImGui::Button("check radius"))
     checkRadius();
   
