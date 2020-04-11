@@ -38,8 +38,3 @@ simpleTest ../spot.obj
 * [Pascal Romon](https://perso.math.u-pem.fr/romon.pascal/)
 * [David Coeurjolly](http://perso.liris.cnrs.fr/david.coeurjolly)
 
-## Misc.
-
-On macOS, if you have an issue when building the project, please have
-a look to https://github.com/nmwsharp/geometry-central/issues/20 for a
-simple workaround.
