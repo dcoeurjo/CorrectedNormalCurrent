@@ -140,17 +140,20 @@ std::vector<Vertex> verticesInBall(const Vertex source,
   std::vector<Vertex> vertices;
   std::queue<Vertex> queue;
   
-  vertices.push_back(source);
+  //vertices.push_back(source);
+  marked.insert(source);
   queue.push(source);
   while (!(queue.empty()))
   {
     auto v = queue.front();
-    marked.insert(v);
     vertices.push_back(v);
     queue.pop();
     for(auto neig: v.adjacentVertices())
       if ((marked.find(neig)==marked.end()) && (isVertexInBall(neig,source,rad)))
-         queue.push(neig);
+	{
+	  marked.insert(neig);
+	  queue.push(neig);
+	}
   }
   return vertices;
 }
