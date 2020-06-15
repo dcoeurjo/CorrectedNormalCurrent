@@ -188,7 +188,8 @@ void convolution(DataFace &data)
   }
 }
 
-void getJetFitting(const Vertex source, double &K, double &H)
+//Return the Monge Form curvatures <Gauss,Mean>
+std::pair<double,double> getJetFitting(const Vertex source)
 {
   typedef double                   DFT;
   typedef CGAL::Simple_cartesian<DFT>     Data_Kernel;
@@ -208,7 +209,7 @@ void getJetFitting(const Vertex source, double &K, double &H)
     in_points.push_back({ p.x, p.y, p.z});
   }
   std::cout<<"Neigh. vertex= "<<in_points.size()<<std::endl;
-  
+  double K,H;
   My_Monge_form monge_form;
   My_Monge_via_jet_fitting monge_fit;
   monge_form = monge_fit(in_points.begin(), in_points.end(), d_fitting, d_monge);
@@ -216,6 +217,7 @@ void getJetFitting(const Vertex source, double &K, double &H)
   double k2 = monge_form.principal_curvatures ( 1 );
   H= 0.5*(k1+k2);
   K = k1*k2;
+  return std::pair<double,double>(K,H);
 }
 
 void doWork()
@@ -264,7 +266,7 @@ void doWork()
   for(auto vert: mesh->vertices())
   {
     double K,H;
-    getJetFitting(vert, K,H);
+    std::tie(K,H) = getJetFitting(vert);
     mongeGauss[vert] = K;
     mongeMean[vert] = H;
   }
