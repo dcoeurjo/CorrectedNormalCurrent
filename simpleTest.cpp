@@ -126,7 +126,7 @@ std::vector<Face> facesInBall(const Face source,
 /// @return true if the triangle is entirely inside the ball.
 bool isVertexInBall(const Vertex vert, const Vertex source, const double rad )
 {
-  return ((geometry->vertexPositions[vert] - geometry->vertexPositions[source]).norm() > rad);
+  return ((geometry->vertexPositions[vert] - geometry->vertexPositions[source]).norm() < rad);
 }
 /// Breathfirst propagation over the triangular mesh using the IsVertexInBall predicate.
 ///
@@ -163,7 +163,8 @@ void checkRadius()
   auto adjFaces = facesInBall(mesh->face(0)   , Radius);
   for(auto face: adjFaces)
     flag[face] = 10.0;
-  psMesh->addFaceScalarQuantity("Ball", flag);
+  auto quantity=psMesh->addFaceScalarQuantity("Ball", flag);
+  quantity->setEnabled(true);
 }
 
 
@@ -206,13 +207,15 @@ void getJetFitting(const Vertex source, double &K, double &H)
     auto p=geometry->vertexPositions[vert];
     in_points.push_back({ p.x, p.y, p.z});
   }
+  std::cout<<"Neigh. vertex= "<<in_points.size()<<std::endl;
   
   My_Monge_form monge_form;
   My_Monge_via_jet_fitting monge_fit;
   monge_form = monge_fit(in_points.begin(), in_points.end(), d_fitting, d_monge);
-  std::cout<<"Monge "<< monge_form<<std::endl;
-  H=0.0;
-  K=0.0;
+  double k1 = monge_form.principal_curvatures ( 0 );
+  double k2 = monge_form.principal_curvatures ( 1 );
+  H= 0.5*(k1+k2);
+  K = k1*k2;
 }
 
 void doWork()
@@ -252,18 +255,21 @@ void doWork()
   auto clamp= [](double v){ return (v< -clampM)? -clampM: (v>clampM)? clampM: v; };
   
   //Default polyscope GC does NC
+  std::cout<<"Computing Built-in Gaussian curvature..."<<std::endl;
   for(auto vert: mesh->vertices())
     ncGauss[vert] = clamp(geometry->vertexGaussianCurvatures[vert]);
   
   //CGALJetFitting
+  std::cout<<"Computing Monge form via JetFitting.."<<std::endl;
   for(auto vert: mesh->vertices())
   {
     double K,H;
-    getJetFitting(vert,K,H);
+    getJetFitting(vert, K,H);
     mongeGauss[vert] = K;
     mongeMean[vert] = H;
   }
   
+  std::cout<<"Computing NC, CNC and Rusinkiewicz curvatures..."<<std::endl;
   for(auto face: mesh->faces())
   {
     auto vb = face.adjacentVertices().begin();
@@ -311,6 +317,9 @@ void doWork()
     RealPoint nnB(nB.x,nB.y,nB.z);
     ncMean[ edge ] = clamp(NormalCycleFormula<RealPoint, RealPoint>::meanCurvature(pA, pB, nnA, nnB));
   }
+  
+  std::cout<<"Measures integration..."<<std::endl;
+
   
   //Multithreading the integration
   std::thread t1([&]{convolution(m0);});
@@ -372,14 +381,15 @@ void doWork()
 
   psMesh->addVertexVectorQuantity("Normal vectors", normal);
 
-  psMesh->addVertexScalarQuantity("JetFitting Gauss", mongeGauss, polyscope::DataType::SYMMETRIC);
-  psMesh->addVertexScalarQuantity("JetFitting Mean" , mongeMean , polyscope::DataType::SYMMETRIC);
+  psMesh->addVertexScalarQuantity("Monge/JetFitting Gauss", mongeGauss, polyscope::DataType::SYMMETRIC);
+  psMesh->addVertexScalarQuantity("Monge/JetFitting Mean" , mongeMean , polyscope::DataType::SYMMETRIC);
 
 }
 
 
 void myCallback()
 {
+  ImGui::Text("Select the integration radius, visualize the selected radius on the mesh and compute the quantities");
   ImGui::SliderFloat("Measuring ball radius", &Radius, 0.0, 1.0);
   if (ImGui::Button("check radius"))
     checkRadius();
