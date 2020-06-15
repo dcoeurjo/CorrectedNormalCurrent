@@ -8,6 +8,8 @@
 #include "polyscope/point_cloud.h"
 #include "polyscope/surface_mesh.h"
 
+#include <CGAL/Simple_cartesian.h>
+#include <CGAL/Monge_via_jet_fitting.h>
 
 #include "geometrycentral/surface/halfedge_mesh.h"
 #include "geometrycentral/surface/meshio.h"
@@ -117,6 +119,42 @@ std::vector<Face> facesInBall(const Face source,
 }
 
 
+/// IsFaceInBall predicate
+/// @param face a face
+/// @param center the ball center
+/// @param rad the ball radius
+/// @return true if the triangle is entirely inside the ball.
+bool isVertexInBall(const Vertex vert, const Vertex source, const double rad )
+{
+  return ((geometry->vertexPositions[vert] - geometry->vertexPositions[source]).norm() > rad);
+}
+/// Breathfirst propagation over the triangular mesh using the IsVertexInBall predicate.
+///
+/// @param source source vertex id
+/// @param rad radius parameter.
+/// @return a vector of faces contained (strictly) in the ball.
+std::vector<Vertex> verticesInBall(const Vertex source,
+                                 const double rad)
+{
+  std::unordered_set<Vertex> marked;
+  std::vector<Vertex> vertices;
+  std::queue<Vertex> queue;
+  
+  vertices.push_back(source);
+  queue.push(source);
+  while (!(queue.empty()))
+  {
+    auto v = queue.front();
+    marked.insert(v);
+    vertices.push_back(v);
+    queue.pop();
+    for(auto neig: v.adjacentVertices())
+      if ((marked.find(neig)==marked.end()) && (isVertexInBall(neig,source,rad)))
+         queue.push(neig);
+  }
+  return vertices;
+}
+
 /// Add a quantity to see the effect of the radius parameter
 /// on the given geometry.
 void checkRadius()
@@ -149,6 +187,33 @@ void convolution(DataFace &data)
   }
 }
 
+void getJetFitting(const Vertex source, double &K, double &H)
+{
+  typedef double                   DFT;
+  typedef CGAL::Simple_cartesian<DFT>     Data_Kernel;
+  typedef Data_Kernel::Point_3     DPoint;
+  typedef CGAL::Monge_via_jet_fitting<Data_Kernel> My_Monge_via_jet_fitting;
+  typedef My_Monge_via_jet_fitting::Monge_form     My_Monge_form;
+  
+  size_t d_fitting = 4;
+  size_t d_monge = 4;
+  
+  std::vector<DPoint> in_points;
+  
+  auto neigVert = verticesInBall(source, Radius);
+  for(auto vert : neigVert)
+  {
+    auto p=geometry->vertexPositions[vert];
+    in_points.push_back({ p.x, p.y, p.z});
+  }
+  
+  My_Monge_form monge_form;
+  My_Monge_via_jet_fitting monge_fit;
+  monge_form = monge_fit(in_points.begin(), in_points.end(), d_fitting, d_monge);
+  std::cout<<"Monge "<< monge_form<<std::endl;
+  H=0.0;
+  K=0.0;
+}
 
 void doWork()
 {
@@ -181,11 +246,23 @@ void doWork()
   VertexData<double> ncGauss(*mesh);
   EdgeData<double> ncMean(*mesh);
   
+  VertexData<double> mongeGauss(*mesh);
+  VertexData<double> mongeMean(*mesh);
+  
   auto clamp= [](double v){ return (v< -clampM)? -clampM: (v>clampM)? clampM: v; };
   
   //Default polyscope GC does NC
   for(auto vert: mesh->vertices())
     ncGauss[vert] = clamp(geometry->vertexGaussianCurvatures[vert]);
+  
+  //CGALJetFitting
+  for(auto vert: mesh->vertices())
+  {
+    double K,H;
+    getJetFitting(vert,K,H);
+    mongeGauss[vert] = K;
+    mongeMean[vert] = H;
+  }
   
   for(auto face: mesh->faces())
   {
@@ -294,11 +371,13 @@ void doWork()
   psMesh->addFaceIntrinsicVectorQuantity("dir2 CNC",intd2);
 
   psMesh->addVertexVectorQuantity("Normal vectors", normal);
+
+  psMesh->addVertexScalarQuantity("JetFitting Gauss", mongeGauss, polyscope::DataType::SYMMETRIC);
+  psMesh->addVertexScalarQuantity("JetFitting Mean" , mongeMean , polyscope::DataType::SYMMETRIC);
+
 }
 
-// A user-defined callback, for creating control panels (etc)
-// Use ImGUI commands to build whatever you want here, see
-// https://github.com/ocornut/imgui/blob/master/imgui.h
+
 void myCallback()
 {
   ImGui::SliderFloat("Measuring ball radius", &Radius, 0.0, 1.0);
