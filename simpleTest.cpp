@@ -102,18 +102,20 @@ std::vector<Face> facesInBall(const Face source,
   std::unordered_set<Face> marked;
   std::vector<Face> faces;
   std::queue<Face> queue;
-  
-  faces.push_back(source);
+
+  marked.insert( source );
   queue.push(source);
   while (!(queue.empty()))
   {
     auto f = queue.front();
-    marked.insert(f);
     faces.push_back(f);
     queue.pop();
     for(auto neig: f.adjacentFaces())
       if ((marked.find(neig)==marked.end()) && (isFaceInBall(neig,center,rad)))
-         queue.push(neig);
+	{
+	  marked.insert(neig);
+	  queue.push(neig);
+	}
   }
   return faces;
 }
