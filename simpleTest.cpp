@@ -222,9 +222,12 @@ std::tuple<double,double, Vector3,Vector3,Vector3> getJetFitting(const Vertex so
   //Comply with the normal
   auto norm = geometry->vertexNormals[source];
   monge_form.comply_wrt_given_normal({ norm.x,norm.y,norm.z});
-  
+  std::cout  << "condition_number : " << monge_fit.condition_number() << std::endl;
   double k1 = monge_form.principal_curvatures ( 0 );
   double k2 = monge_form.principal_curvatures ( 1 );
+//  auto n  = monge_fit.pca_basis(0).second;
+//  auto d1 = monge_fit.pca_basis(1).second;
+//  auto d2 = monge_fit.pca_basis(2).second;
   auto n  = monge_form.normal_direction();
   auto d1 = monge_form.minimal_principal_direction();
   auto d2 = monge_form.maximal_principal_direction();
