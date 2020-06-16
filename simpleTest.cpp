@@ -290,7 +290,7 @@ void doWork()
     std::tie(K,H,nn,d1,d2) = getJetFitting(vert);
     mongeNormal[vert] = nn;
     mongeMinDir[vert] = d1;
-    mongeMaxDir[vert] = d2;
+    mongeMaxDir[vert] = d2  ;
 
     mongeGauss[vert] = K;
     mongeMean[vert] = H;
