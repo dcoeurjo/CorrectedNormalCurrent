@@ -194,7 +194,7 @@ void convolution(DataFace &data)
 }
 
 //Return the Monge Form curvatures <Gauss,Mean>
-std::tuple<double,double, Vector3,Vector3,Vector3> getJetFitting(const Vertex source)
+std::tuple<double,double, Vector3,Vector3,Vector3,Vector3> getJetFitting(const Vertex source)
 {
   typedef double                   DFT;
   typedef CGAL::Simple_cartesian<DFT>     Data_Kernel;
@@ -225,8 +225,8 @@ std::tuple<double,double, Vector3,Vector3,Vector3> getJetFitting(const Vertex so
   std::cout<<"Neigh. vertex= "<<in_points.size()<<std::endl;
   std::cout  << "condition_number : " << monge_fit.condition_number() << std::endl;
 #endif
-  double k1 = monge_form.principal_curvatures ( 0 );
-  double k2 = monge_form.principal_curvatures ( 1 );
+  double k1 = monge_form.principal_curvatures ( 0 ); //kmax
+  double k2 = monge_form.principal_curvatures ( 1 ); //kmin
 
   auto n  = monge_form.normal_direction();
   auto d1 = monge_form.minimal_principal_direction();
@@ -234,9 +234,11 @@ std::tuple<double,double, Vector3,Vector3,Vector3> getJetFitting(const Vertex so
   Vector3 nn={n.x(),n.y(),n.z()};
   Vector3 dd1={d1.x(),d1.y(),d1.z()};
   Vector3 dd2={d2.x(),d2.y(),d2.z()};
+  Vector3 cgal={d2.x()*k2,d2.y()*k2,d2.z()*k2};
+
   H= 0.5*(k1+k2);
   K = k1*k2;
-  return std::tuple<double,double, Vector3,Vector3,Vector3>(K,H,nn,dd1,dd2);
+  return std::tuple<double,double, Vector3,Vector3,Vector3,Vector3>(K,H,nn,dd1,dd2,cgal);
 }
 
 void doWork()
@@ -275,7 +277,8 @@ void doWork()
   VertexData<Vector3> mongeNormal(*mesh);
   VertexData<Vector3> mongeMinDir(*mesh);
   VertexData<Vector3> mongeMaxDir(*mesh);
-  
+  VertexData<Vector3> mongeCGAL(*mesh);
+
   
   auto clamp= [](double v){ return (v< -clampM)? -clampM: (v>clampM)? clampM: v; };
   
@@ -289,12 +292,13 @@ void doWork()
   for(auto vert: mesh->vertices())
   {
     double K,H;
-    Vector3 nn,d1,d2;
-    std::tie(K,H,nn,d1,d2) = getJetFitting(vert);
+    Vector3 nn,d1,d2,cgal;
+    std::tie(K,H,nn,d1,d2,cgal) = getJetFitting(vert);
     mongeNormal[vert] = nn;
     mongeMinDir[vert] = d1;
     mongeMaxDir[vert] = d2  ;
-
+    mongeCGAL[vert] = cgal;
+    
     mongeGauss[vert] = K;
     mongeMean[vert] = H;
   }
@@ -416,6 +420,7 @@ void doWork()
   psMesh->addVertexVectorQuantity("Monge/JetFitting norm", mongeNormal);
   psMesh->addVertexVectorQuantity("Monge/JetFitting mindir", mongeMinDir);
   psMesh->addVertexVectorQuantity("Monge/JetFitting maxdir", mongeMaxDir);
+  psMesh->addVertexVectorQuantity("Monge/JetFitting CGAL vis", mongeCGAL);
 
 }
 
