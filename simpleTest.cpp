@@ -194,7 +194,7 @@ void convolution(DataFace &data)
 }
 
 //Return the Monge Form curvatures <Gauss,Mean>
-std::pair<double,double> getJetFitting(const Vertex source)
+std::tuple<double,double, Vector3,Vector3,Vector3> getJetFitting(const Vertex source)
 {
   typedef double                   DFT;
   typedef CGAL::Simple_cartesian<DFT>     Data_Kernel;
@@ -218,11 +218,22 @@ std::pair<double,double> getJetFitting(const Vertex source)
   My_Monge_form monge_form;
   My_Monge_via_jet_fitting monge_fit;
   monge_form = monge_fit(in_points.begin(), in_points.end(), d_fitting, d_monge);
+
+  //Comply with the normal
+  auto norm = geometry->vertexNormals[source];
+  monge_form.comply_wrt_given_normal({ norm.x,norm.y,norm.z});
+  
   double k1 = monge_form.principal_curvatures ( 0 );
   double k2 = monge_form.principal_curvatures ( 1 );
+  auto n  = monge_form.normal_direction();
+  auto d1 = monge_form.minimal_principal_direction();
+  auto d2 = monge_form.maximal_principal_direction();
+  Vector3 nn={n.x(),n.y(),n.z()};
+  Vector3 dd1={d1.x(),d1.y(),d1.z()};
+  Vector3 dd2={d2.x(),d2.y(),d2.z()};
   H= 0.5*(k1+k2);
   K = k1*k2;
-  return std::pair<double,double>(K,H);
+  return std::tuple<double,double, Vector3,Vector3,Vector3>(K,H,nn,dd1,dd2);
 }
 
 void doWork()
@@ -258,6 +269,10 @@ void doWork()
   
   VertexData<double> mongeGauss(*mesh);
   VertexData<double> mongeMean(*mesh);
+  VertexData<Vector3> mongeNormal(*mesh);
+  VertexData<Vector3> mongeMinDir(*mesh);
+  VertexData<Vector3> mongeMaxDir(*mesh);
+  
   
   auto clamp= [](double v){ return (v< -clampM)? -clampM: (v>clampM)? clampM: v; };
   
@@ -271,7 +286,12 @@ void doWork()
   for(auto vert: mesh->vertices())
   {
     double K,H;
-    std::tie(K,H) = getJetFitting(vert);
+    Vector3 nn,d1,d2;
+    std::tie(K,H,nn,d1,d2) = getJetFitting(vert);
+    mongeNormal[vert] = nn;
+    mongeMinDir[vert] = d1;
+    mongeMaxDir[vert] = d2;
+
     mongeGauss[vert] = K;
     mongeMean[vert] = H;
   }
@@ -390,6 +410,9 @@ void doWork()
 
   psMesh->addVertexScalarQuantity("Monge/JetFitting Gauss", mongeGauss, polyscope::DataType::SYMMETRIC);
   psMesh->addVertexScalarQuantity("Monge/JetFitting Mean" , mongeMean , polyscope::DataType::SYMMETRIC);
+  psMesh->addVertexVectorQuantity("Monge/JetFitting norm", mongeNormal);
+  psMesh->addVertexVectorQuantity("Monge/JetFitting mindir", mongeMinDir);
+  psMesh->addVertexVectorQuantity("Monge/JetFitting maxdir", mongeMaxDir);
 
 }
 
