@@ -213,7 +213,6 @@ std::tuple<double,double, Vector3,Vector3,Vector3> getJetFitting(const Vertex so
     auto p=geometry->vertexPositions[vert];
     in_points.push_back({ p.x, p.y, p.z});
   }
-  std::cout<<"Neigh. vertex= "<<in_points.size()<<std::endl;
   double K,H;
   My_Monge_form monge_form;
   My_Monge_via_jet_fitting monge_fit;
@@ -222,12 +221,13 @@ std::tuple<double,double, Vector3,Vector3,Vector3> getJetFitting(const Vertex so
   //Comply with the normal
   auto norm = geometry->vertexNormals[source];
   monge_form.comply_wrt_given_normal({ norm.x,norm.y,norm.z});
+#if !defined(NDEBUG)
+  std::cout<<"Neigh. vertex= "<<in_points.size()<<std::endl;
   std::cout  << "condition_number : " << monge_fit.condition_number() << std::endl;
+#endif
   double k1 = monge_form.principal_curvatures ( 0 );
   double k2 = monge_form.principal_curvatures ( 1 );
-//  auto n  = monge_fit.pca_basis(0).second;
-//  auto d1 = monge_fit.pca_basis(1).second;
-//  auto d2 = monge_fit.pca_basis(2).second;
+
   auto n  = monge_form.normal_direction();
   auto d1 = monge_form.minimal_principal_direction();
   auto d2 = monge_form.maximal_principal_direction();
@@ -422,7 +422,8 @@ void doWork()
 
 void myCallback()
 {
-  ImGui::Text("Select the integration radius, visualize the selected radius on the mesh and compute the quantities");
+  ImGui::Text("HowTo: First, select the integration radius and check it.");
+  ImGui::Text("Then, you can compute all quantities");
   ImGui::SliderFloat("Measuring ball radius", &Radius, 0.0, 1.0);
   if (ImGui::Button("check radius"))
     checkRadius();
@@ -430,6 +431,10 @@ void myCallback()
   ImGui::SliderFloat("Clamping value for the curvatvure measures", &clampM, 0.0, 100);
   if (ImGui::Button("do work"))
     doWork();
+  
+  ImGui::Text("Note: For CGAL Monge form via jet fitting,");
+  ImGui::Text("you may need a larger neighborhood.");
+
 }
 
 
