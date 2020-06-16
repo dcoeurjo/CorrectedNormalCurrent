@@ -11,6 +11,7 @@ include("${PROJECT_BINARY_DIR}/deps/DGtal/DGtalConfig.cmake")
 include_directories("${DGTAL_INCLUDE_DIRS}")
 
 ## CGAL
+SET(CGAL_DIR "${CMAKE_SOURCE_DIR}/deps/cgal")
 find_package(CGAL REQUIRED COMPONENTS Core)
 
 add_executable(simpleTest simpleTest)
