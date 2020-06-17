@@ -433,13 +433,14 @@ void myCallback()
   if (ImGui::Button("check radius"))
     checkRadius();
   
-  ImGui::SliderFloat("Clamping value for the curvatvure measures", &clampM, 0.0, 100);
+  ImGui::SliderFloat("Clamping", &clampM, 0.0, 100);
   if (ImGui::Button("do work"))
     doWork();
   
   ImGui::Text("Note: For CGAL Monge form via jet fitting,");
   ImGui::Text("you may need a larger neighborhood.");
-
+  ImGui::Text("The clamping value is just for visualization purposes");
+  ImGui::Text("of the curvature information.");
 }
 
 
