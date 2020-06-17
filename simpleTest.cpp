@@ -410,8 +410,8 @@ void doWork()
   psMesh->addFaceScalarQuantity("mu1",m1);
   psMesh->addFaceScalarQuantity("mu2",m2);
  
-  psMesh->addFaceIntrinsicVectorQuantity("dir1 CNC",intd1);
-  psMesh->addFaceIntrinsicVectorQuantity("dir2 CNC",intd2);
+  psMesh->addFaceIntrinsicVectorQuantity("CNC dir1",intd1);
+  psMesh->addFaceIntrinsicVectorQuantity("CNC dir2",intd2);
 
   psMesh->addVertexVectorQuantity("Normal vectors", normal);
 
