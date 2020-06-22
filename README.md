@@ -7,6 +7,18 @@ Jacques-Olivier Lachaud, Pascal Romon, Boris Thibert, David
 Coeurjolly,
 Symposium on Geometry Processing, Computer Graphics Forum, 2020.
 
+``` bibtex
+@Article{cnc2020,
+  author  =    {Jacques-Olivier Lachaud, Pascal Romon, Boris Thibert and David
+Coeurjolly},
+  title   =    {Interpolated corrected curvature measures for polygonal surfaces},
+  journal =    {Computer Graphics Forum (Proceedings of Symposium on Geometry Processing 2020)},
+  year    =    {2020},
+  volume  =    {39},
+  number  =    {5},
+}
+```
+
 In this project, we compare our stable curvature measure with existing
 approaches (Normal Cycles, Rusinkiewicz's formula, polynomial fitting
 via Jet Fitting). Our closed form formulas are given in the
@@ -59,3 +71,5 @@ simpleTest ../spot.obj
 ## License
 
 GNU LGPL (see header files)
+
+
