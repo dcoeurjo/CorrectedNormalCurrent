@@ -18,8 +18,8 @@ for basic linear algebra.
 If you would like to include our CNC forumlas in your project, you
 would just need to copy the
 [CorrectedNormalCurrentFormula.h](https://github.com/dcoeurjo/CorrectedNormalCurrent/blob/master/CorrectedNormalCurrentFormula.h)
-header and provide your own `RealVector` algera and 3x3 matrix
-operations.
+header and provide your own `RealVector` and 3x3 matrix
+operation implementations.
 
 
 To use this project, just clone it (with submodule):
