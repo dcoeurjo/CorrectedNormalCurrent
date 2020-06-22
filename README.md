@@ -1,13 +1,14 @@
 # Interpolated corrected curvature measures for polygonal surfaces
 
-This repository is a demo of the "Interpolated corrected curvature
-measures for polygonal surfaces" article.
+This repository is a demo of the paper: 
+
+    Interpolated corrected curvature measures for polygonal surfaces, Jacques-Olivier Lachaud, Pascal Romon, Boris Thibert, David Coeurjolly, Symposium on Geometry Processing, Computer Graphics Forum, 2020
 
 
 To use this project, just clone it (with submodule):
 
 ```
-git clone --recursive https://github.com/dcoeurjo/PolyscopeCNC.git
+git clone --recursive https://github.com/dcoeurjo/CorrectedNormalCurrent.git
 ```
 
 Then you can compile the example file using:
