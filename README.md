@@ -8,7 +8,7 @@ Coeurjolly,
 Symposium on Geometry Processing, Computer Graphics Forum, 2020.
 
 ``` bibtex
-@Article{cnc2020,
+@article{cnc2020,
   author  =    {Jacques-Olivier Lachaud, Pascal Romon, Boris Thibert and David
 Coeurjolly},
   title   =    {Interpolated corrected curvature measures for polygonal surfaces},
