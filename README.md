@@ -2,7 +2,9 @@
 
 This repository is a demo of the paper: 
 
-    Interpolated corrected curvature measures for polygonal surfaces, Jacques-Olivier Lachaud, Pascal Romon, Boris Thibert, David Coeurjolly, Symposium on Geometry Processing, Computer Graphics Forum, 2020
+    Interpolated corrected curvature measures for polygonal surfaces,
+    Jacques-Olivier Lachaud, Pascal Romon, Boris Thibert, David Coeurjolly,
+    Symposium on Geometry Processing, Computer Graphics Forum, 2020
 
 
 To use this project, just clone it (with submodule):
