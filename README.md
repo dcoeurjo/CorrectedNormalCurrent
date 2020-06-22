@@ -7,6 +7,17 @@ Jacques-Olivier Lachaud, Pascal Romon, Boris Thibert, David
 Coeurjolly,
 Symposium on Geometry Processing, Computer Graphics Forum, 2020.
 
+In this project, we compare our stable curvature measure with existing
+approaches. The closed form forumulas are given in the
+[CorrectedNormalCurrentFormula.h](https://github.com/dcoeurjo/CorrectedNormalCurrent/blob/master/CorrectedNormalCurrentFormula.h)
+file.
+
+We rely on [CGAL](https://cgal.org) for the Monge form via Jet Fitting
+approach. This project also relies on the [DGtal](dgtal.org) library
+for basic linear algebra. If you would like to include our CNC
+forumlas in your project, you would just need to copy the [CorrectedNormalCurrentFormula.h](https://github.com/dcoeurjo/CorrectedNormalCurrent/blob/master/CorrectedNormalCurrentFormula.h)
+ header and provide your own `RealVector` algera and 3x3 matrix operations.
+
 
 To use this project, just clone it (with submodule):
 
@@ -19,10 +30,10 @@ Then you can compile the example file using:
 ```
 mkdir build
 cd build
-cmake ..
+cmake ..  -DCMAKE_BUILD_TYPE=Release
 make
 ```
-Consider using  `cmake -DCMAKE_BUILD_TYPE=Release` for faster computation.
+
 *Note*: to compile DGtal, you would need [boost](boost.org) (only headers) and  [zlib](https://www.zlib.net).
 
 
