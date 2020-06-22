@@ -8,7 +8,8 @@ Coeurjolly,
 Symposium on Geometry Processing, Computer Graphics Forum, 2020.
 
 In this project, we compare our stable curvature measure with existing
-approaches. The closed form forumulas are given in the
+approaches (Normal Cycles, Rusinkiewicz's formula, polynomial fitting
+via Jet Fitting). The closed form forumulas are given in the
 [CorrectedNormalCurrentFormula.h](https://github.com/dcoeurjo/CorrectedNormalCurrent/blob/master/CorrectedNormalCurrentFormula.h)
 file.
 
