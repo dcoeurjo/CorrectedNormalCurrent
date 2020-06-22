@@ -55,3 +55,7 @@ simpleTest ../spot.obj
 * [Boris Thibert](https://ljk.imag.fr/membres/Boris.Thibert/)
 * [Pascal Romon](https://perso.math.u-pem.fr/romon.pascal/)
 * [David Coeurjolly](http://perso.liris.cnrs.fr/david.coeurjolly)
+
+## License
+
+GNU LGPL (see header files)
