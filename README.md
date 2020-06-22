@@ -9,15 +9,17 @@ Symposium on Geometry Processing, Computer Graphics Forum, 2020.
 
 In this project, we compare our stable curvature measure with existing
 approaches (Normal Cycles, Rusinkiewicz's formula, polynomial fitting
-via Jet Fitting). The closed form forumulas are given in the
+via Jet Fitting). Our closed form forumulas are given in the
 [CorrectedNormalCurrentFormula.h](https://github.com/dcoeurjo/CorrectedNormalCurrent/blob/master/CorrectedNormalCurrentFormula.h)
-file.
-
-We rely on [CGAL](https://cgal.org) for the Monge form via Jet Fitting
+file. We rely on [CGAL](https://cgal.org) for the Monge form via Jet Fitting
 approach. This project also relies on the [DGtal](dgtal.org) library
-for basic linear algebra. If you would like to include our CNC
-forumlas in your project, you would just need to copy the [CorrectedNormalCurrentFormula.h](https://github.com/dcoeurjo/CorrectedNormalCurrent/blob/master/CorrectedNormalCurrentFormula.h)
- header and provide your own `RealVector` algera and 3x3 matrix operations.
+for basic linear algebra.
+
+If you would like to include our CNC forumlas in your project, you
+would just need to copy the
+[CorrectedNormalCurrentFormula.h](https://github.com/dcoeurjo/CorrectedNormalCurrent/blob/master/CorrectedNormalCurrentFormula.h)
+header and provide your own `RealVector` algera and 3x3 matrix
+operations.
 
 
 To use this project, just clone it (with submodule):
