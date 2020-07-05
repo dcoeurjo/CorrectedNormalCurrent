@@ -25,7 +25,7 @@ via Jet Fitting). Our closed form formulas are given in the
 [CorrectedNormalCurrentFormula.h](https://github.com/dcoeurjo/CorrectedNormalCurrent/blob/master/CorrectedNormalCurrentFormula.h)
 file. We rely on [CGAL](https://cgal.org) for the Monge form via Jet Fitting
 approach. This project also relies on the [DGtal](dgtal.org) library
-for basic linear algebra. The project heavily uses [polyscope](http://polyscope.run) for the visualization ans the graphical interface.
+for basic linear algebra. The project heavily uses [polyscope](http://polyscope.run) for the visualization and UI.
 
 If you would like to include our CNC estimators in your project, you
 would just need to copy the
