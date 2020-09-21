@@ -59,7 +59,7 @@ OBJ file:
 simpleTest ../spot.obj
 ```
 
-![](screenshot.png)
+![](spot.gif)
 
 ## Authors
 
