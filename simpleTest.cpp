@@ -16,8 +16,8 @@
 #include "geometrycentral/surface/vertex_position_geometry.h"
 
 #include "args/args.hxx"
-
 #include "CorrectedNormalCurrentFormula.h"
+#include "CorrectedNormalCurrentFormulaEigen.h"
 #include "NormalCycleFormula.h"
 #include "RusinkiewiczCurvatureFormula.h"
 
