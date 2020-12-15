@@ -33,7 +33,7 @@ would just need to copy the
 header and provide your own `RealVector` and 3x3 matrix
 operation implementations.
 
-As an example, we also provide a stand-alone implementation of some formulas using [eigen](https://eigen.tuxfamily.org) in [CorrectedNormalCurrentFormulaEigen.h](https://github.com/dcoeurjo/CorrectedNormalCurrent/blob/master/CorrectedNormalCurrentFormulaEigen.h).
+As an example, we also provide a stand-alone implementation (BSD License 2.0) of some formulas using [eigen](https://eigen.tuxfamily.org) in [CorrectedNormalCurrentFormulaEigen.h](https://github.com/dcoeurjo/CorrectedNormalCurrent/blob/master/CorrectedNormalCurrentFormulaEigen.h).
 
 
 To use this project, just clone it (with submodule):
@@ -73,5 +73,3 @@ simpleTest ../spot.obj
 ## License
 
 GNU LGPL (see header files)
-
-
