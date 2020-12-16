@@ -37,6 +37,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <iostream>
 #include <tuple>
 #include <cmath>
+#include <algorithm>
+#include <array>
 #include <Eigen/Dense>
 
 /**
@@ -282,9 +284,8 @@ namespace CorrectedNormalCurrentEigen {
                     const double area,
                     const Eigen::Vector3d &N)
   {
-    auto  Mt=tensor;
+    auto  Mt=tensor.transpose();
     auto M=tensor;
-    Mt.transpose();
     M += Mt;
     M *= 0.5;
     const double   coef_N = 1000.0 * area;
@@ -296,8 +297,12 @@ namespace CorrectedNormalCurrentEigen {
     Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> eigensolver(M);
     if (eigensolver.info() != Eigen::Success) abort();
     
-    Eigen::Vector3d v1 = eigensolver.eigenvectors().col(1);
-    Eigen::Vector3d v2 = eigensolver.eigenvectors().col(0);
+    std::array<size_t,3> ind={0,1,2};
+    auto eigvalues = eigensolver.eigenvalues();
+    std::sort(ind.begin(), ind.end(), [&](const size_t i, const size_t j)
+              {return eigvalues(i) < eigvalues(j);});
+    Eigen::Vector3d v1 = eigensolver.eigenvectors().col(ind[1]);
+    Eigen::Vector3d v2 = eigensolver.eigenvectors().col(ind[0]);
     return std::pair<Eigen::Vector3d,Eigen::Vector3d>(v1,v2);
   }
 }
