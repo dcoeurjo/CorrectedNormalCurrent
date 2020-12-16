@@ -189,7 +189,7 @@ namespace CorrectedNormalCurrentEigen {
   /// corrected normals should be made unitary, otherwise
   /// interpolated corrected normals may have smaller norms.
   /// @return the mu1-measure of triangle abc, i.e. its mean curvature.
-  double mu1InterpolatedU( const Eigen::Vector3d& a, Eigen::Vector3d & b, const Eigen::Vector3d& c,
+  double mu1InterpolatedU( const Eigen::Vector3d& a, const Eigen::Vector3d & b, const Eigen::Vector3d& c,
                           const Eigen::Vector3d& ua, const Eigen::Vector3d& ub, const Eigen::Vector3d& uc,
                           bool unit_u = false)
   {
@@ -299,6 +299,7 @@ namespace CorrectedNormalCurrentEigen {
     
     std::array<size_t,3> ind={0,1,2};
     auto eigvalues = eigensolver.eigenvalues();
+    //Forcing the sort
     std::sort(ind.begin(), ind.end(), [&](const size_t i, const size_t j)
               {return eigvalues(i) < eigvalues(j);});
     Eigen::Vector3d v1 = eigensolver.eigenvectors().col(ind[1]);
