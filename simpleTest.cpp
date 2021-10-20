@@ -42,6 +42,7 @@ polyscope::SurfaceMesh *psMesh;
 // Main variables
 float clampM=10.0;
 float Radius=0.01;
+float JetRadius=0.1;
 
 // Computing principal curvatures k1 and k2
 static
@@ -162,10 +163,10 @@ std::vector<Vertex> verticesInBall(const Vertex source,
 
 /// Add a quantity to see the effect of the radius parameter
 /// on the given geometry.
-void checkRadius()
+void checkRadius( double r )
 {
   FaceData<double> flag(*mesh,0.0);
-  auto adjFaces = facesInBall(mesh->face(0)   , Radius);
+  auto adjFaces = facesInBall( mesh->face(0), r );
   for(auto face: adjFaces)
     flag[face] = 10.0;
   auto quantity=psMesh->addFaceScalarQuantity("Ball", flag);
@@ -207,7 +208,7 @@ std::tuple<double,double, Vector3,Vector3,Vector3,Vector3> getJetFitting(const V
   
   std::vector<DPoint> in_points;
   
-  auto neigVert = verticesInBall(source, Radius);
+  auto neigVert = verticesInBall(source, JetRadius);
   for(auto vert : neigVert)
   {
     auto p=geometry->vertexPositions[vert];
@@ -430,15 +431,18 @@ void myCallback()
   ImGui::Text("HowTo: First, select the integration radius and check it.");
   ImGui::Text("Then, you can compute all quantities");
   ImGui::SliderFloat("Measuring ball radius", &Radius, 0.0, 1.0);
-  if (ImGui::Button("check radius"))
-    checkRadius();
+  if (ImGui::Button("check measure radius"))
+    checkRadius( Radius );
+  ImGui::SliderFloat("Jet-fitting ball radius", &JetRadius, 0.0, 1.0);
+  if (ImGui::Button("check jet-fitting radius"))
+    checkRadius( JetRadius );
   
   ImGui::SliderFloat("Clamping", &clampM, 0.0, 100);
   if (ImGui::Button("do work"))
     doWork();
   
   ImGui::Text("Note: For CGAL Monge form via jet fitting,");
-  ImGui::Text("you may need a larger neighborhood.");
+  ImGui::Text("you need a larger neighborhood to capture enough points.");
   ImGui::Text("The clamping value is just for visualization purposes");
   ImGui::Text("of the curvature information.");
 }
