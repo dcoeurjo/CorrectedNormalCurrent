@@ -369,7 +369,7 @@ void doWork()
   //We update the quantities
   for(auto face: mesh->faces())
   {
-    cncMean[face] = clamp(m1[face]/m0[face]);
+    cncMean[face] = clamp(m1[face]/(2.0*m0[face]));
     cncGauss[face] = clamp(m2[face]/m0[face]);
     RealVector dd1,dd2;
     auto nf= geometry->faceNormal(face);

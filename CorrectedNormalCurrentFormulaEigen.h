@@ -1,10 +1,10 @@
 /**
  Copyright (c) 2020,  CNRS
  Jacques-Olivier Lachaud (\c jacques-olivier.lachaud@univ-savoie.fr)
- Laboratory of Mathematics (CNRS, UMR 5807), University of Savoie, France,
+ Laboratory of Mathematics (CNRS, UMR 5127), University of Savoie, France,
  David Coeurjolly (\c david.coeurjolly@liris.cnrs.fr)
  LIRIS (CNRS, UMR 5205), CNRS, France
- 
+
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -16,7 +16,7 @@ modification, are permitted provided that the following conditions are met:
   notice, this list of conditions and the following disclaimer in the
   documentation and/or other materials provided with the distribution.
 
-* Neither the name of the <organization> nor the names of its 
+* Neither the name of the <organization> nor the names of its
   contributors may be used to endorse or promote products derived from
   this software without specific prior written permission.
 
@@ -43,10 +43,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <assert.h>
 /**
  * @file CorrectedNormalCurrentEigen.h
+ * @author Jacques-Olivier Lachaud (\c jacques-olivier.lachaud@univ-savoie.fr)
+ * Laboratory of Mathematics (CNRS, UMR 5127), University of Savoie, France
  * @author David Coeurjolly (\c david.coeurjolly@liris.cnrs.fr)
  * LIRIS (CNRS, UMR 5205), CNRS, France
- * @author Jacques-Olivier Lachaud (\c jacques-olivier.lachaud@univ-savoie.fr)
- * Laboratory of Mathematics (CNRS, UMR 5807), University of Savoie, France
  *
  * @date 2020/12/09
  *
@@ -63,11 +63,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 namespace CorrectedNormalCurrentEigen {
+
+  /// Represents a triangle on the unit sphere.
   struct SphericalTriangle {
     
-    ///Spherical point data type
+    /// Spherical point data type
     typedef Eigen::Vector3d Vector3;
-    
+
+    /// @param[in] a the first vertex of spherical triangle ABC (ccw oriented)
+    /// @param[in] b the second vertex of spherical triangle ABC (ccw oriented)
+    /// @param[in] c the third vertex of spherical triangle ABC (ccw oriented)
+    /// @return 'true' if ABC is made of almost collinear points.
     static
     bool isDegenerate(const Vector3 &a, const Vector3 &b, const Vector3 &c)
     {
@@ -81,8 +87,14 @@ namespace CorrectedNormalCurrentEigen {
       if ( d[ 2 ] > d[ m ] ) m = 2;
       return ( fabs( d[ m ] - d[ (m+1)%3 ] - d[ (m+2)%3 ] ) < 1e-8 );
     }
-    
-    /// @return the polar triangle associated with this triangle.
+
+        /// Computes the polar triangle associated with triangle ABC.
+    /// @param[in] a the first vertex of spherical triangle ABC (ccw oriented)
+    /// @param[in] b the second vertex of spherical triangle ABC (ccw oriented)
+    /// @param[in] c the third vertex of spherical triangle ABC (ccw oriented)
+    /// @param[out] Ap the first vertex of its polar triangle A'B'C'
+    /// @param[out] Bp the second vertex of its polar triangle A'B'C'
+    /// @param[out] Cp the third vertex of its polar triangle A'B'C'
     static
     void polarTriangle(const Vector3 &a, const Vector3 &b, const Vector3 &c,
                        Vector3& Ap, Vector3& Bp, Vector3& Cp)
@@ -95,8 +107,11 @@ namespace CorrectedNormalCurrentEigen {
       if ( Bp.dot( b ) < 0.0 ) Bp = -Bp;
       if ( Cp.dot( c ) < 0.0 ) Cp = -Cp;
     }
-    
-    /// Returns the interior angles of the spherical triangle ABC.
+
+        /// Computes the interior angles of the spherical triangle ABC.
+    /// @param[in] a the first vertex of spherical triangle ABC (ccw oriented)
+    /// @param[in] b the second vertex of spherical triangle ABC (ccw oriented)
+    /// @param[in] c the third vertex of spherical triangle ABC (ccw oriented)
     /// @param[out] alpha the interior angle at vertex A.
     /// @param[out] beta  the interior angle at vertex B.
     /// @param[out] gamma the interior angle at vertex C.
@@ -121,7 +136,10 @@ namespace CorrectedNormalCurrentEigen {
         gamma     = acos( cc );
       }
     }
-    
+
+        /// @param[in] a the first vertex of spherical triangle ABC (ccw oriented)
+    /// @param[in] b the second vertex of spherical triangle ABC (ccw oriented)
+    /// @param[in] c the third vertex of spherical triangle ABC (ccw oriented)
     /// @return the (unsigned) area of the spherical triangle (below 2pi).
     static
     double area(const Vector3 &a, const Vector3 &b, const Vector3 &c)
@@ -133,6 +151,9 @@ namespace CorrectedNormalCurrentEigen {
       ? 0.0 : 2.0*M_PI - alpha - beta - gamma;
     }
     
+    /// @param[in] a the first vertex of spherical triangle ABC (ccw oriented)
+    /// @param[in] b the second vertex of spherical triangle ABC (ccw oriented)
+    /// @param[in] c the third vertex of spherical triangle ABC (ccw oriented)
     /// @return the (signed) area of the spherical triangle (below 2pi).
     static
     double algebraicArea(const Vector3 &a, const Vector3 &b, const Vector3 &c) 
@@ -143,8 +164,8 @@ namespace CorrectedNormalCurrentEigen {
       if ( M.lpNorm<1>() <= 1e-8 || X.lpNorm<1>() <= 1e-8 ) return 0.0;
       return M.dot( X ) < 0.0 ? -S : S;
     }
-  };
-  
+  }; // struct SphericalTriangle
+
   
   ///---------------------- Main functions ----------------
   
@@ -161,9 +182,14 @@ namespace CorrectedNormalCurrentEigen {
   /// interpolated corrected normals may have smaller norms.
   /// @return the mu0-measure of triangle abc, i.e. its area.
   static
-  double mu0InterpolatedU( const Eigen::Vector3d & a, const Eigen::Vector3d & b, const Eigen::Vector3d & c,
-                         const Eigen::Vector3d & ua, const Eigen::Vector3d & ub, const Eigen::Vector3d & uc,
-                         bool unit_u = false)
+  double
+  mu0InterpolatedU( const Eigen::Vector3d & a,
+                    const Eigen::Vector3d & b,
+                    const Eigen::Vector3d & c,
+                    const Eigen::Vector3d & ua,
+                    const Eigen::Vector3d & ub,
+                    const Eigen::Vector3d & uc,
+                    bool unit_u = false)
   {
     // MU0=1/2*det( uM, B-A, C-A )
     //    =  1/2 < ( (u_A + u_B + u_C)/3.0 ) | (AB x AC ) >
@@ -175,8 +201,8 @@ namespace CorrectedNormalCurrentEigen {
     }
     return 0.5 * (( b - a ).cross( c - a )).dot( uM );
   }
-  
-  
+
+    
   /// Computes mu1 measure (mean curvature) of triangle abc given an interpolated
   /// corrected normal vector \a ua, \a \ub, \a uc.
   /// @param a any point
@@ -188,20 +214,25 @@ namespace CorrectedNormalCurrentEigen {
   /// @param unit_u when 'true' considers that interpolated
   /// corrected normals should be made unitary, otherwise
   /// interpolated corrected normals may have smaller norms.
-  /// @return the mu1-measure of triangle abc, i.e. its mean curvature.
-  double mu1InterpolatedU( const Eigen::Vector3d& a, const Eigen::Vector3d & b, const Eigen::Vector3d& c,
-                          const Eigen::Vector3d& ua, const Eigen::Vector3d& ub, const Eigen::Vector3d& uc,
-                          bool unit_u = false)
+  /// @return the mu1-measure of triangle abc, i.e. \b twice its mean curvature.
+  double
+  mu1InterpolatedU( const Eigen::Vector3d& a,
+                    const Eigen::Vector3d & b,
+                    const Eigen::Vector3d& c,
+                    const Eigen::Vector3d& ua,
+                    const Eigen::Vector3d& ub,
+                    const Eigen::Vector3d& uc,
+                    bool unit_u = false)
   {
     // MU1=1/2( | uM u_C-u_B A | + | uM u_A-u_C B | + | uM u_B-u_A C |
     Eigen::Vector3d uM = ( ua+ub+uc ) / 3.0;
     if ( unit_u ) uM /= uM.norm();
-    return 0.25 * ( uM.cross( uc - ub ).dot( a )
+    return 0.5 * ( uM.cross( uc - ub ).dot( a )
                    + uM.cross( ua - uc ).dot( b )
                    + uM.cross( ub - ua ).dot( c ) );
   }
-  
-  
+
+    
   /// Computes mu2 measure (Gaussian curvature) of triangle abc given an interpolated
   /// corrected normal vector \a ua, \a \ub, \a uc.
   /// @param a any point
@@ -215,11 +246,16 @@ namespace CorrectedNormalCurrentEigen {
   /// interpolated corrected normals may have smaller norms.
   /// @return the mu2-measure of triangle abc, i.e. its Gaussian curvature.
   static
-  double mu2InterpolatedU( const Eigen::Vector3d& a, const Eigen::Vector3d& b, const Eigen::Vector3d& c,
-                          const Eigen::Vector3d& ua, const Eigen::Vector3d& ub, const Eigen::Vector3d& uc,
-                          bool unit_u = false)
+  double
+  mu2InterpolatedU( const Eigen::Vector3d& a,
+                    const Eigen::Vector3d& b,
+                    const Eigen::Vector3d& c,
+                    const Eigen::Vector3d& ua,
+                    const Eigen::Vector3d& ub,
+                    const Eigen::Vector3d& uc,
+                    bool unit_u = false)
   {
-
+    
     // Using non unitary interpolated normals give
     // MU2=1/2*det( uA, uB, uC )
     // When normals are unitary, it is the area of a spherical triangle.
@@ -230,8 +266,10 @@ namespace CorrectedNormalCurrentEigen {
   }
   
   
-  /// Computes muXY measure (anisotropic curvature) of triangle abc given an interpolated
-  /// corrected normal vector \a ua, \a \ub, \a uc.
+  /// Computes muXY measure (anisotropic curvature) of triangle abc
+  /// given an interpolated corrected normal vector \a ua, \a \ub, \a
+  /// uc.
+  ///
   /// @param a any point
   /// @param b any point
   /// @param c any point
@@ -240,9 +278,14 @@ namespace CorrectedNormalCurrentEigen {
   /// @param uc the corrected normal vector at point c
   /// @return the muXY-measure of triangle abc, i.e. its anisotropic curvature.
   static
-  Eigen::Matrix3d muXYInterpolatedU( const Eigen::Vector3d& a, const Eigen::Vector3d& b, const Eigen::Vector3d& c,
-                                   const Eigen::Vector3d& ua, const Eigen::Vector3d& ub, const Eigen::Vector3d& uc,
-                                    bool unit_u = false)
+  Eigen::Matrix3d
+  muXYInterpolatedU( const Eigen::Vector3d& a,
+                     const Eigen::Vector3d& b,
+                     const Eigen::Vector3d& c,
+                     const Eigen::Vector3d& ua,
+                     const Eigen::Vector3d& ub,
+                     const Eigen::Vector3d& uc,
+                     bool unit_u = false)
   {
     Eigen::Matrix3d T = Eigen::Matrix3d::Zero();
     Eigen::Vector3d uM = ( ua+ub+uc ) / 3.0;
@@ -267,15 +310,13 @@ namespace CorrectedNormalCurrentEigen {
     }
     return T;
   }
-  
-  
-  
+
   ///---------------------- Helper functions ----------------
   ///
   ///
   /// Computing principal curvatures k1 and k2 from tensor
   /// @param tensor The muXY integrated tensor
-  /// @param area Area of the face
+  /// @param area Area of the face
   /// @param N the normal vector
   /// @return a pair of principal directions.
   static
@@ -305,4 +346,5 @@ namespace CorrectedNormalCurrentEigen {
     Eigen::Vector3d v2 = eigensolver.eigenvectors().col(0);
     return std::pair<Eigen::Vector3d,Eigen::Vector3d>(v1,v2);
   }
-}
+} // namespace CorrectedNormalCurrentEigen {
+

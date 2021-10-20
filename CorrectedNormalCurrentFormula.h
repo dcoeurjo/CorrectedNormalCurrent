@@ -69,6 +69,9 @@ namespace DGtal
      We see by simple computations that MU0 can be written as (uM = UM/3)
      MU0=1/2*det( uM, B-A, C-A )
 
+     Measure MU1 corresponds to -2H dA on smooth surfaces, where H is
+     the mean curvature and dA is the area measure.
+
      MU1=1/6*((uBy - uCy)*uAz - (uAy + 2*uCy)*uBz + (uAy + 2*uBy)*uCz)*Ax + 1/6*((uBy + 2*uCy)*uAz - (uAy - uCy)*uBz - (2*uAy + uBy)*uCz)*Bx - 1/6*((2*uBy + uCy)*uAz - (2*uAy + uCy)*uBz - (uAy - uBy)*uCz)*Cx - 1/6*((uBx - uCx)*uAz - (uAx + 2*uCx)*uBz + (uAx + 2*uBx)*uCz)*Ay - 1/6*((uBx + 2*uCx)*uAz - (uAx - uCx)*uBz - (2*uAx + uBx)*uCz)*By + 1/6*((2*uBx + uCx)*uAz - (2*uAx + uCx)*uBz - (uAx - uBx)*uCz)*Cy + 1/6*((uBx - uCx)*uAy - (uAx + 2*uCx)*uBy + (uAx + 2*uBx)*uCy)*Az + 1/6*((uBx + 2*uCx)*uAy - (uAx - uCx)*uBy - (2*uAx + uBx)*uCy)*Bz - 1/6*((2*uBx + uCx)*uAy - (2*uAx + uCx)*uBy - (uAx - uBx)*uCy)*Cz
 
      This formula can also be written in a clearer form
@@ -232,8 +235,9 @@ namespace DGtal
       // MU1=1/2( | uM u_C-u_B A | + | uM u_A-u_C B | + | uM u_B-u_A C |
       RealVector uM = ( ua+ub+uc ) / 3.0;
       if ( unit_u ) uM /= uM.norm();
-      // JOL: if I put 0.5, we obtain twice the mean curvature.
-      return 0.25 * ( uM.crossProduct( uc - ub ).dot( a )
+      // MU1 is twice the curvature density. You must divide by 2 to
+      // get the mean curvature.
+      return 0.5 * ( uM.crossProduct( uc - ub ).dot( a )
 		     + uM.crossProduct( ua - uc ).dot( b )
 		     + uM.crossProduct( ub - ua ).dot( c ) );
     }
