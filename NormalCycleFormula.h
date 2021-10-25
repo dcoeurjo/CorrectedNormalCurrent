@@ -103,9 +103,6 @@ namespace DGtal
     /// @param right the normal vector at face xba where x is some vertex(ices)
     /// @param left the normal vector at face yab where y is some vertex(ices)
     /// @return the mean curvature according to Normal Cycle formula.
-    ///
-    /// @note JOL: I have to multiply it by 0.25 to get approximately
-    /// the mean curvature.
     static
     Scalar meanCurvature
     ( const RealPoint& a, const RealPoint& b,
@@ -115,7 +112,7 @@ namespace DGtal
       const Scalar n = std::min( 1.0, std::max( diedre.norm(), 0.0 ) );
       const Scalar angle = ( diedre.dot( b - a) < 0.0 )
 	? asin( n ) : - asin( n );
-      return 0.25 * ( b - a ).norm() * angle;
+      return 0.5 * ( b - a ).norm() * angle;
     }
 
     /// Computes the Gaussian curvature at point \a a with incident vertices \a vtcs.

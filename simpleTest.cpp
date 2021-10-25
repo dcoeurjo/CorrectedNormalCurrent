@@ -350,7 +350,7 @@ void doWork()
     RealPoint pB(B.x,B.y,B.z);
     RealPoint nnA(nA.x,nA.y,nA.z);
     RealPoint nnB(nB.x,nB.y,nB.z);
-    ncMean[ edge ] = clamp(NormalCycleFormula<RealPoint, RealPoint>::meanCurvature(pA, pB, nnA, nnB));
+    ncMean[ edge ] = clamp(NormalCycleFormula<RealPoint, RealPoint>::meanCurvature(pA, pB, nnB, nnA));
   }
   
   std::cout<<"Measures integration..."<<std::endl;
