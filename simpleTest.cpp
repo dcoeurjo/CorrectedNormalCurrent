@@ -15,7 +15,7 @@
 #include "geometrycentral/surface/meshio.h"
 #include "geometrycentral/surface/vertex_position_geometry.h"
 
-#include "args/args.hxx"
+#include "deps/args/args.hxx"
 #include "CorrectedNormalCurrentFormula.h"
 #include "CorrectedNormalCurrentFormulaEigen.h"
 #include "NormalCycleFormula.h"
@@ -99,7 +99,7 @@ std::vector<Face> facesInBall(const Face source,
     center += geometry->vertexPositions[vert];
   }
   center = center /(double)cpt;
-  
+
   std::unordered_set<Face> marked;
   std::vector<Face> faces;
   std::queue<Face> queue;
@@ -142,7 +142,7 @@ std::vector<Vertex> verticesInBall(const Vertex source,
   std::unordered_set<Vertex> marked;
   std::vector<Vertex> vertices;
   std::queue<Vertex> queue;
-  
+
   //vertices.push_back(source);
   marked.insert(source);
   queue.push(source);
@@ -202,12 +202,12 @@ std::tuple<double,double, Vector3,Vector3,Vector3,Vector3> getJetFitting(const V
   typedef Data_Kernel::Point_3     DPoint;
   typedef CGAL::Monge_via_jet_fitting<Data_Kernel> My_Monge_via_jet_fitting;
   typedef My_Monge_via_jet_fitting::Monge_form     My_Monge_form;
-  
+
   size_t d_fitting = 4;
   size_t d_monge = 4;
-  
+
   std::vector<DPoint> in_points;
-  
+
   auto neigVert = verticesInBall(source, JetRadius);
   for(auto vert : neigVert)
   {
@@ -272,7 +272,7 @@ void doWork()
   FaceData<std::complex<double>> intd2(*mesh);
   VertexData<double> ncGauss(*mesh);
   EdgeData<double> ncMean(*mesh);
-  
+
   VertexData<double> mongeGauss(*mesh);
   VertexData<double> mongeMean(*mesh);
   VertexData<Vector3> mongeNormal(*mesh);
@@ -280,14 +280,14 @@ void doWork()
   VertexData<Vector3> mongeMaxDir(*mesh);
   VertexData<Vector3> mongeCGAL(*mesh);
 
-  
+
   auto clamp= [](double v){ return (v< -clampM)? -clampM: (v>clampM)? clampM: v; };
-  
+
   //Default polyscope GC does NC
   std::cout<<"Computing Built-in Gaussian curvature..."<<std::endl;
   for(auto vert: mesh->vertices())
     ncGauss[vert] = clamp(geometry->vertexGaussianCurvatures[vert]);
-  
+
   //CGALJetFitting
   std::cout<<"Computing Monge form via JetFitting.."<<std::endl;
   for(auto vert: mesh->vertices())
@@ -299,11 +299,11 @@ void doWork()
     mongeMinDir[vert] = d1;
     mongeMaxDir[vert] = d2  ;
     mongeCGAL[vert] = cgal;
-    
+
     mongeGauss[vert] = K;
     mongeMean[vert] = H;
   }
-  
+
   std::cout<<"Computing NC, CNC and Rusinkiewicz curvatures..."<<std::endl;
   for(auto face: mesh->faces())
   {
@@ -325,7 +325,7 @@ void doWork()
     RealPoint pC(C.x,C.y, C.z);
     RealPoint nC(nnC.x,nnC.y, nnC.z);
     normal[*vb] = nC;
-    
+
     //CNC measures
     m0[face] = CorrectedNormalCurrentFormula<RealPoint, RealPoint>::mu0InterpolatedU(pA, pB, pC, nA, nB, nC);
     m1[face] = CorrectedNormalCurrentFormula<RealPoint, RealPoint>::mu1InterpolatedU(pA, pB, pC, nA, nB, nC);
@@ -336,7 +336,7 @@ void doWork()
     rusMean[face] = clamp(RusinkiewiczCurvatureFormula::meanCurvature(A, B, C, nnA, nnB, nnC));
     rusGauss[face] = clamp(RusinkiewiczCurvatureFormula::gaussianCurvature(A, B, C, nnA, nnB, nnC));
   }
-  
+
   //NormalCycle per edge
   for(auto edge: mesh->edges())
   {
@@ -352,10 +352,10 @@ void doWork()
     RealPoint nnB(nB.x,nB.y,nB.z);
     ncMean[ edge ] = clamp(NormalCycleFormula<RealPoint, RealPoint>::meanCurvature(pA, pB, nnB, nnA));
   }
-  
+
   std::cout<<"Measures integration..."<<std::endl;
 
-  
+
   //Multithreading the integration
   std::thread t1([&]{convolution(m0);});
   std::thread t2([&]{convolution(m1);});
@@ -365,7 +365,7 @@ void doWork()
   t2.join();
   t3.join();
   t4.join();
-  
+
   //We update the quantities
   for(auto face: mesh->faces())
   {
@@ -387,18 +387,18 @@ void doWork()
     if (bitan.dot(dd1) < 0.0)
       angle  = 2*M_PI - angle;
     intd1[face] = std::polar(1.0, angle);
-    
+
     angle =std::acos(tan.dot(dd2));
       if (bitan.dot(dd2) < 0.0)
         angle  = 2*M_PI - angle;
     intd2[face] = std::polar(1.0, angle);
   }
-  
+
   psMesh->addVertexScalarQuantity("NC Gauss",ncGauss,
                                 polyscope::DataType::SYMMETRIC);
   psMesh->addEdgeScalarQuantity("NC mean",ncMean,
                                 polyscope::DataType::SYMMETRIC);
-  
+
   psMesh->addFaceScalarQuantity("CNC mean",cncMean,
                                 polyscope::DataType::SYMMETRIC);
   psMesh->addFaceScalarQuantity("CNC Gauss",cncGauss,
@@ -410,7 +410,7 @@ void doWork()
   psMesh->addFaceScalarQuantity("mu0",m0);
   psMesh->addFaceScalarQuantity("mu1",m1);
   psMesh->addFaceScalarQuantity("mu2",m2);
- 
+
   psMesh->addFaceIntrinsicVectorQuantity("CNC dir1",intd1);
   psMesh->addFaceIntrinsicVectorQuantity("CNC dir2",intd2);
 
@@ -436,11 +436,11 @@ void myCallback()
   ImGui::SliderFloat("Jet-fitting ball radius", &JetRadius, 0.0, 1.0);
   if (ImGui::Button("check jet-fitting radius"))
     checkRadius( JetRadius );
-  
+
   ImGui::SliderFloat("Clamping", &clampM, 0.0, 100);
   if (ImGui::Button("do work"))
     doWork();
-  
+
   ImGui::Text("Note: For CGAL Monge form via jet fitting,");
   ImGui::Text("you need a larger neighborhood to capture enough points.");
   ImGui::Text("The clamping value is just for visualization purposes");
@@ -471,7 +471,7 @@ int main(int argc, char **argv)
      std::cerr << "Please specify a mesh file as argument" << std::endl;
      return EXIT_FAILURE;
    }
-  
+
   polyscope::init();
 
   // Set the callback function
@@ -490,8 +490,8 @@ int main(int argc, char **argv)
   geometry->requireFaceNormals();
   geometry->requireVertexNormals();
   geometry->requireVertexPositions();
-  
-  
+
+
   polyscope::show();
   return 0;
 }
