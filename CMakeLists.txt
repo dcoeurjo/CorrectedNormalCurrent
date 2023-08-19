@@ -16,3 +16,7 @@ find_package(CGAL REQUIRED COMPONENTS Core)
 
 add_executable(simpleTest simpleTest.cpp)
 target_link_libraries(simpleTest polyscope DGtal ${DGTAL_LIBRARIES} CGAL::CGAL CGAL::CGAL_Core geometry-central)
+
+add_executable(cgalTest cgalTest.cpp)
+target_link_libraries(cgalTest polyscope DGtal ${DGTAL_LIBRARIES} CGAL::CGAL CGAL::CGAL_Core geometry-central)
+
