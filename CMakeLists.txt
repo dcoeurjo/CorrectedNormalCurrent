@@ -14,5 +14,5 @@ include_directories("${DGTAL_INCLUDE_DIRS}")
 SET(CGAL_DIR "${CMAKE_SOURCE_DIR}/deps/cgal")
 find_package(CGAL REQUIRED COMPONENTS Core)
 
-add_executable(simpleTest simpleTest)
+add_executable(simpleTest simpleTest.cpp)
 target_link_libraries(simpleTest polyscope DGtal ${DGTAL_LIBRARIES} CGAL::CGAL CGAL::CGAL_Core geometry-central)
