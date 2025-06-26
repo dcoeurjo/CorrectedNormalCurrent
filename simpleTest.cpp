@@ -268,6 +268,7 @@ void doWork()
 
   FaceData<RealVector> d1(*mesh);
   FaceData<RealVector> d2(*mesh);
+  FaceData<RealVector> dn(*mesh);
   FaceData<std::complex<double>> intd1(*mesh);
   FaceData<std::complex<double>> intd2(*mesh);
   VertexData<double> ncGauss(*mesh);
@@ -377,6 +378,7 @@ void doWork()
     std::tie(dd1,dd2) = curvDirFromTensor(mXY[face], geometry->faceArea(face), nFace);
     d1[face] = dd1;
     d2[face] = dd2;
+    dn[face] = d1[face].crossProduct(d2[face]);
     auto vB = vBasisX[face];
     RealVector tan(vB.x,vB.y,vB.z);
     RealVector bitan(geometry->faceTangentBasis[face][1].x,
@@ -413,6 +415,7 @@ void doWork()
 
   psMesh->addFaceIntrinsicVectorQuantity("CNC dir1",intd1);
   psMesh->addFaceIntrinsicVectorQuantity("CNC dir2",intd2);
+  psMesh->addFaceVectorQuantity("CNC dn", dn);
 
   psMesh->addVertexVectorQuantity("Normal vectors", normal);
 
